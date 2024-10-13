@@ -5,7 +5,16 @@ import {
   Container,
   Grid,
   Typography,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Snackbar,
+  Alert,
 } from '@mui/material';
+import HelpIcon from '@mui/icons-material/Help';
 import {
   ArcElement,
   CategoryScale,
@@ -30,6 +39,19 @@ import {
   FaSeedling,
   FaRadiation,
 } from 'react-icons/fa';
+import HelpDialog from './HelpDialog';
+
+// Register the components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 // Register the components
 ChartJS.register(
@@ -190,7 +212,9 @@ const data = [
 data.forEach(item => {
   item.avgPrice = (item.minPrice + item.maxPrice) / 2;
 });
+
 const cropPrices = data;
+
 const cropColors = {
   Amaranthus: 'rgba(255, 99, 132, 0.6)',
   'Banana - Green': 'rgba(54, 162, 235, 0.6)',
@@ -230,11 +254,125 @@ const cropColors = {
   'Mustard Seeds': 'rgba(255, 228, 196, 0.6)',
 };
 
+const helpTexts = {
+  pieChart: "This pie chart shows the average prices of different crops.\n"+
+             "Purpose: To visualize the proportion of each crop's average price compared to the total.\n" +
+             "Attributes: Each slice represents a crop, and the size of the slice indicates its average price.\n" +
+             "Impact: Helps farmers understand which crops are currently valued higher, enabling better planning for planting and selling.\n" +
+             "Metrics: Average price is calculated based on the minimum and maximum prices observed.",
+
+  forecastChart: "This bar chart displays the 10-day temperature forecast.\n" +
+                 "Purpose: To provide insight into expected weather conditions, crucial for planning agricultural activities.\n" +
+                 "Attributes: Two sets of bars represent maximum and minimum temperatures for each day.\n" +
+                 "Impact: Helps farmers anticipate temperature fluctuations that could affect crop health and yield.\n" +
+                 "Metrics: Temperatures are measured in degrees Celsius and are forecasted for the next ten days.",
+
+  historicalChart: "This bar chart represents the historical temperature data over the last few days.\n" +
+                   "Purpose: To give context to current weather by showing how temperatures have varied in recent days.\n" +
+                   "Attributes: Each bar corresponds to the temperature recorded on a specific day.\n" +
+                   "Impact: Farmers can assess past weather patterns to make informed decisions about future crop management.\n" +
+                   "Metrics: Temperature is measured in degrees Celsius over a specified period.",
+
+  hourlyForecastChart: "This line chart illustrates the hourly temperature and humidity forecast.\n" +
+                       "Purpose: To provide detailed weather information over the course of a day, assisting in time-sensitive agricultural tasks.\n" +
+                       "Attributes: Two lines represent temperature and humidity, plotted over the hours of the day.\n" +
+                       "Impact: Helps farmers plan irrigation, harvesting, and other activities based on hourly conditions.\n" +
+                       "Metrics: Temperature in degrees Celsius and humidity in percentage, measured at hourly intervals.",
+
+  cropPricesChart: "This bar chart shows the average crop prices by state.\n" +
+                   "Purpose: To compare the average prices of various crops across different states, aiding in market analysis.\n" +
+                   "Attributes: Each bar represents a state, and the height indicates the average price of crops produced there.\n" +
+                   "Impact: Enables farmers to identify which states have higher prices for certain crops, guiding decisions on where to sell.\n" +
+                   "Metrics: Average prices are computed from the minimum and maximum price ranges for each crop."
+};
+
 const WeatherDashboard = () => {
   const [currentWeather, setCurrentWeather] = useState(null);
   const [hourlyForecast, setHourlyForecast] = useState([]);
   const [historicalData, setHistoricalData] = useState([]);
   const [forecastData, setForecastData] = useState([]);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentHelpText, setCurrentHelpText] = useState("");
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  const handleNotUnderstood = () => {
+    console.log("Not Understood");
+    setSnackbarMessage("Contact admin: ameerkissan@ameerkissan.com");
+    setSnackbarOpen(true);
+  };
+
+  const handleUnderstood = () => {
+    console.log("Understood");
+    setSnackbarMessage("Ok! Great");
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  const formatHelpText = (text) => {
+    const lines = text.split('\n').map((line, index) => {
+      // Check if the line contains specific keywords and format accordingly
+      if (line.includes("This")) {
+        return (
+          <Typography key={index} variant="body1" fontWeight="bold" color="blue">
+            {line}
+          </Typography>
+        );
+      } else if (line.includes("Purpose:") || line.includes("Attributes:") || line.includes("Impact:") || line.includes("Metrics:")) {
+        // Split the line into two parts: label and content
+        const [label, ...content] = line.split(/:(.+)/); // Split on the first occurrence of ":"
+        return (
+          <Typography key={index} variant="body2">
+            <span style={{ fontWeight: 'bold', color:"red" }}>{label}:</span> {content.join(':')}
+          </Typography>
+        );
+      }
+      return <Typography key={index} variant="body2">{line}</Typography>;
+    });
+  
+    return lines;
+  };
+  
+  const handleHelpOpen = (text) => {
+    setCurrentHelpText(text);
+    setDialogOpen(true);
+  };
+
+  const handleHelpClose = () => {
+    setDialogOpen(false);
+  };
+
+  // Function to fetch weather data
+  const fetchWeatherData = async () => {
+    const latitude = 22.8046;
+    const longitude = 86.2029;
+
+    try {
+      const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation`);
+      const result = await response.json();
+      setCurrentWeather(result.current);
+      setHourlyForecast(result.hourly);
+
+      const historicalResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&past_days=10&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m`);
+      const historicalResult = await historicalResponse.json();
+      setHistoricalData(historicalResult.hourly);
+
+      const forecastResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min`);
+      const forecastResult = await forecastResponse.json();
+      setForecastData(forecastResult.daily);
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchWeatherData();
+  }, []);
 
   const getColorByValue = (value, type) => {
     if (type === 'ph') {
@@ -257,33 +395,6 @@ const WeatherDashboard = () => {
     if (price < 6000) return 'rgba(255, 206, 86, 0.6)'; // Yellow for mid-low prices
     if (price < 9000) return 'rgba(54, 162, 235, 0.6)';  // Blue for mid-high prices
     return 'rgba(75, 192, 192, 0.6)';                     // Green for high prices
-  };
-
-
-  // Function to fetch weather data
-  const fetchWeatherData = async () => {
-    const latitude = 22.8046;
-    const longitude = 86.2029;
-
-    try {
-      // Fetch current and hourly weather
-      const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation`);
-      const result = await response.json();
-      setCurrentWeather(result.current);
-      setHourlyForecast(result.hourly);
-
-      // Fetch historical weather data for the last 10 days
-      const historicalResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&past_days=10&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m`);
-      const historicalResult = await historicalResponse.json();
-      setHistoricalData(historicalResult.hourly);
-
-      // Fetch daily forecast data
-      const forecastResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min`);
-      const forecastResult = await forecastResponse.json();
-      setForecastData(forecastResult.daily);
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
-    }
   };
 
   useEffect(() => {
@@ -410,9 +521,15 @@ const WeatherDashboard = () => {
 
         {/* Pie Chart of Average Prices */}
         <Grid item xs={12} sm={6}>
-          <Card style={{ height: '600px' }}>
+          <Card style={{ height: '600px', position: 'relative' }}>
             <CardContent>
               <Typography variant="h5">Pie Chart of Average Prices</Typography>
+              <IconButton 
+                style={{ position: 'absolute', top: 16, right: 16, color: 'red' }} 
+                onClick={() => handleHelpOpen(helpTexts.pieChart)}
+              >
+                <HelpIcon />
+              </IconButton>
               <Pie data={pieChartData} options={{ responsive: true }} />
             </CardContent>
           </Card>
@@ -420,9 +537,15 @@ const WeatherDashboard = () => {
 
         {/* Bar Chart for 10-Day Forecast */}
         <Grid item xs={12} sm={6}>
-          <Card style={{ height: '400px' }}>
+          <Card style={{ height: '400px', position: 'relative' }}>
             <CardContent>
               <Typography variant="h5">10-Day Temperature Forecast</Typography>
+              <IconButton 
+                style={{ position: 'absolute', top: 16, right: 16, color: 'red' }} 
+                onClick={() => handleHelpOpen(helpTexts.forecastChart)}
+              >
+                <HelpIcon />
+              </IconButton>
               <Bar data={forecastChartData} options={{ responsive: true }} />
             </CardContent>
           </Card>
@@ -430,9 +553,15 @@ const WeatherDashboard = () => {
 
         {/* Hourly Forecast Line Chart */}
         <Grid item xs={12} sm={6}>
-          <Card style={{ height: '400px' }}>
+          <Card style={{ height: '400px', position: 'relative' }}>
             <CardContent>
               <Typography variant="h5">Hourly Forecast</Typography>
+              <IconButton 
+                style={{ position: 'absolute', top: 16, right: 16, color: 'red' }} 
+                onClick={() => handleHelpOpen(helpTexts.hourlyForecastChart)}
+              >
+                <HelpIcon />
+              </IconButton>
               <Line data={hourlyForecastChartData} options={{ responsive: true }} />
             </CardContent>
           </Card>
@@ -440,9 +569,15 @@ const WeatherDashboard = () => {
 
         {/* Bar Chart for Historical Weather Data */}
         <Grid item xs={12} sm={6}>
-          <Card style={{ height: '400px' }}>
+          <Card style={{ height: '400px', position: 'relative' }}>
             <CardContent>
               <Typography variant="h5">Historical Temperature Data</Typography>
+              <IconButton 
+                style={{ position: 'absolute', top: 16, right: 16, color: 'red' }} 
+                onClick={() => handleHelpOpen(helpTexts.historicalChart)}
+              >
+                <HelpIcon />
+              </IconButton>
               <Bar data={historicalChartData} options={{ responsive: true }} />
             </CardContent>
           </Card>
@@ -450,14 +585,50 @@ const WeatherDashboard = () => {
 
         {/* Bar Chart of Crop Prices by State */}
         <Grid item xs={12} sm={6}>
-          <Card style={{ height: '400px' }}>
+          <Card style={{ height: '400px', position: 'relative' }}>
             <CardContent>
               <Typography variant="h5">Bar Chart of Crop Prices by State</Typography>
+              <IconButton 
+                style={{ position: 'absolute', top: 16, right: 16, color: 'red' }} 
+                onClick={() => handleHelpOpen(helpTexts.cropPricesChart)}
+              >
+                <HelpIcon />
+              </IconButton>
               <Bar data={barChartData} options={{ responsive: true }} />
             </CardContent>
           </Card>
         </Grid>
       </Grid>
+    <>
+      {/* Help Dialog */}
+      <Dialog open={dialogOpen} onClose={handleHelpClose}>
+        <DialogTitle>Help</DialogTitle>
+        <DialogContent>
+          <Card>
+            <CardContent>
+              {formatHelpText(currentHelpText)}
+            </CardContent>
+          </Card>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleNotUnderstood} color="primary">Not Understood</Button>
+          <Button onClick={handleUnderstood} color="primary">Understood</Button>
+          <Button onClick={handleHelpClose} color="primary">Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for feedback messages */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </>
+      
     </Container>
   );
 };

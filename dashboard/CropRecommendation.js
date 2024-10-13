@@ -14,9 +14,48 @@ import {
   Paper,
 } from '@mui/material';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-
-// Register the necessary components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+// Sample crop data
+const cropData = [
+  {
+    fiscal_year: "2019-20",
+    state: "Jharkhand",
+    district: "West Singhbhum",
+    season: "Rabi",
+    crop: "Maize",
+    area: 8,
+    production: 17,
+    crop_yield: 2.125,
+    unit: "area in Hectare, production in Tonne, crop_yield in Tonne per Hectare",
+    note: ""
+  },
+  {
+    fiscal_year: "2019-20",
+    state: "Jharkhand",
+    district: "Ranchi",
+    season: "Rabi",
+    crop: "Masoor",
+    area: 2755,
+    production: 2204,
+    crop_yield: 0.8,
+    unit: "area in Hectare, production in Tonne, crop_yield in Tonne per Hectare",
+    note: ""
+  },
+  // Add the remaining data rows here...
+  {
+    fiscal_year: "2019-20",
+    state: "Jharkhand",
+    district: "Gumla",
+    season: "Kharif",
+    crop: "Maize",
+    area: 7577,
+    production: 18852,
+    crop_yield: 2.488,
+    unit: "area in Hectare, production in Tonne, crop_yield in Tonne per Hectare",
+    note: ""
+  },
+];
 
 const CropRecommendation = () => {
   const [data, setData] = useState([]);
@@ -80,7 +119,6 @@ const CropRecommendation = () => {
 
     setAnalysisData({ totalProduction, totalArea, totalYield, analysisResults });
   };
-
 
   const getChartData = (type) => {
     if (!analysisData) return { labels: [], datasets: [] };
@@ -149,7 +187,6 @@ const CropRecommendation = () => {
   const recommendedCrops = recommendCrops();
 
   return (
-    
     <Container>
       <Typography variant="h4" gutterBottom>
         Crop Statistics
@@ -169,19 +206,19 @@ const CropRecommendation = () => {
         <input type="file" hidden accept=".csv" onChange={handleFileChange} />
       </Button>
       <div>
-            <Typography variant="h5" style={{ marginTop: '20px' }}>
-              Crop Recommendations
-            </Typography>
-            {recommendedCrops.length > 0 ? (
-              <ul>
-                {recommendedCrops.map(crop => (
-                  <li key={crop}>{crop}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>No recommendations available.</p>
-            )}
-          </div>
+        <Typography variant="h5" style={{ marginTop: '20px' }}>
+          Crop Recommendations
+        </Typography>
+        {recommendedCrops.length > 0 ? (
+          <ul>
+            {recommendedCrops.map(crop => (
+              <li key={crop}>{crop}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>No recommendations available.</p>
+        )}
+      </div>
       {analysisData && (
         <>
           <Typography variant="h5">Total Production by Crop</Typography>
@@ -221,8 +258,6 @@ const CropRecommendation = () => {
               </TableBody>
             </Table>
           </TableContainer>
-
-          
         </>
       )}
     </Container>

@@ -1,42 +1,58 @@
-// Login.js
 import React, { useState } from 'react';
-import { Box, TextField, Button, Typography } from '@mui/material';
-import { useHistory } from 'react-router-dom';
+import { Button, TextField, Container, Typography, Grid, Tooltip, IconButton } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const history = useHistory();
+const Login = ({ onLogin }) => {
+  const [credentials, setCredentials] = useState({
+    email: '',
+    password: ''
+  });
 
-  const handleLogin = (e) => {
+  const handleInputChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    // Implement login logic here (e.g., Firebase Auth)
-    console.log('User logged in:', email);
-    history.push('/dashboard'); // Redirect after login
+    console.log("Login Credentials: ", credentials);
+    onLogin(credentials);
   };
 
   return (
-    <Box sx={{ padding: 3, backgroundColor: '#fff', borderRadius: 2, boxShadow: 2 }}>
-      <Typography variant="h5">Login</Typography>
-      <form onSubmit={handleLogin}>
-        <TextField
-          label="Email"
-          fullWidth
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          sx={{ marginBottom: 2 }}
-        />
-        <TextField
-          label="Password"
-          type="password"
-          fullWidth
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          sx={{ marginBottom: 2 }}
-        />
-        <Button type="submit" variant="contained" color="primary">Login</Button>
+    <Container>
+      <Typography variant="h5" gutterBottom>Login</Typography>
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={2}>
+          {[
+            { name: 'email', label: 'Email', tooltip: 'Enter your registered email address' },
+            { name: 'password', label: 'Password', tooltip: 'Enter your password' }
+          ].map((field, index) => (
+            <Grid item xs={12} key={index}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TextField
+                  name={field.name}
+                  label={field.label}
+                  type={field.name === 'password' ? 'password' : 'text'}
+                  fullWidth
+                  margin="normal"
+                  value={credentials[field.name]}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Tooltip title={field.tooltip} arrow>
+                  <IconButton size="small" style={{ marginLeft: '8px' }}>
+                    <HelpOutlineIcon fontSize="inherit" />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            </Grid>
+          ))}
+          <Grid item xs={12}>
+            <Button variant="contained" color="primary" type="submit">Login</Button>
+          </Grid>
+        </Grid>
       </form>
-    </Box>
+    </Container>
   );
 };
 
