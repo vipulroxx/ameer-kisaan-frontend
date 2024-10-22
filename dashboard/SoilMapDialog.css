@@ -1,0 +1,94 @@
+.popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.7);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	overflow: auto; /* Allow scrolling */
+}
+
+.popup-content {
+	background: #fff;
+	border-radius: 10px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+	max-width: 600px;
+	max-height: 90%; /* Limit height */
+	padding: 20px;
+	position: relative;
+	overflow: hidden; /* Hide overflow */
+}
+
+.close {
+	position: absolute;
+	top: 10px;
+	right: 15px;
+	font-size: 24px;
+	cursor: pointer;
+	color: #333;
+}
+
+h2 {
+	color: #4CAF50;
+	text-align: center;
+}
+
+.soil-types {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	margin-top: 20px;
+}
+
+.soil-chip {
+	background: #4CAF50;
+	color: white;
+	padding: 10px 15px;
+	margin: 5px;
+	border-radius: 20px;
+	cursor: pointer;
+	transition: background 0.3s, transform 0.2s;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.soil-chip:hover {
+	background: #45a049;
+	transform: translateY(-2px);
+}
+
+.soil-chip:active {
+	transform: translateY(1px);
+}
+
+p {
+	margin-bottom: 20px;
+	color: #555;
+}
+
+.image-container {
+	position: relative;
+	display: inline-block;
+	overflow: hidden; /* Prevent overflow */
+}
+
+.soil-map-image {
+	width: 100%; /* Make sure the image fits nicely */
+	border-radius: 10px; /* Optional: For rounded corners */
+}
+
+.magnifier {
+	position: absolute;
+	width: 100px; /* Size of the magnifier */
+	height: 100px; /* Size of the magnifier */
+	border: 3px solid #4CAF50;
+	border-radius: 50%;
+	pointer-events: none; /* Prevent interfering with mouse events */
+	display: none;
+	background: url('./Jharkhand.png') no-repeat; /* Use a dynamic URL if needed */
+	background-size: 200%; /* Adjust based on how much you want to zoom */
+	transition: display 0.1s ease;
+}

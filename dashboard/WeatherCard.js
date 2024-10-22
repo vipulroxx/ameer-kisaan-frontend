@@ -40,6 +40,7 @@ import {
   FaRadiation,
 } from 'react-icons/fa';
 import HelpDialog from './HelpDialog';
+import JharkhandInfo from '../auth/JharkhandInfo';
 
 // Register the components
 ChartJS.register(
@@ -53,160 +54,153 @@ ChartJS.register(
   ArcElement
 );
 
-// Register the components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
-
-// Sample agricultural commodity data
 const data = [
   // Andaman and Nicobar
-  { state: 'Andaman and Nicobar', commodity: 'Amaranthus', minPrice: 6000, maxPrice: 8000 },
-  { state: 'Andaman and Nicobar', commodity: 'Banana - Green', minPrice: 4500, maxPrice: 5500 },
-  { state: 'Andaman and Nicobar', commodity: 'Black Pepper', minPrice: 110000, maxPrice: 130000 },
+  { state: 'Andaman and Nicobar', commodity: 'Amaranthus', minPrice: 8000, maxPrice: 10000 },
+  { state: 'Andaman and Nicobar', commodity: 'Banana - Green', minPrice: 5000, maxPrice: 7000 },
+  { state: 'Andaman and Nicobar', commodity: 'Black Pepper', minPrice: 130000, maxPrice: 150000 },
 
   // Andhra Pradesh
-  { state: 'Andhra Pradesh', commodity: 'Tomato', minPrice: 200, maxPrice: 1120 },
-  { state: 'Andhra Pradesh', commodity: 'Bengal Gram', minPrice: 4500, maxPrice: 4700 },
-  { state: 'Andhra Pradesh', commodity: 'Jowar', minPrice: 1800, maxPrice: 1950 },
+  { state: 'Andhra Pradesh', commodity: 'Tomato', minPrice: 500, maxPrice: 1500 },
+  { state: 'Andhra Pradesh', commodity: 'Bengal Gram', minPrice: 4800, maxPrice: 5000 },
+  { state: 'Andhra Pradesh', commodity: 'Jowar', minPrice: 2000, maxPrice: 2100 },
 
   // Assam
-  { state: 'Assam', commodity: 'Lentil', minPrice: 5200, maxPrice: 7200 },
-  { state: 'Assam', commodity: 'Rice', minPrice: 2200, maxPrice: 2500 },
-  { state: 'Assam', commodity: 'Mustard Seeds', minPrice: 5000, maxPrice: 6000 },
+  { state: 'Assam', commodity: 'Lentil', minPrice: 6000, maxPrice: 8000 },
+  { state: 'Assam', commodity: 'Rice', minPrice: 2500, maxPrice: 3000 },
+  { state: 'Assam', commodity: 'Mustard Seeds', minPrice: 6000, maxPrice: 7000 },
 
   // Bihar
-  { state: 'Bihar', commodity: 'Potato', minPrice: 2000, maxPrice: 3000 },
-  { state: 'Bihar', commodity: 'Cauliflower', minPrice: 3000, maxPrice: 4000 },
-  { state: 'Bihar', commodity: 'Onion', minPrice: 2500, maxPrice: 3500 },
+  { state: 'Bihar', commodity: 'Potato', minPrice: 3000, maxPrice: 4000 },
+  { state: 'Bihar', commodity: 'Cauliflower', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Bihar', commodity: 'Onion', minPrice: 3000, maxPrice: 4000 },
 
   // Chhattisgarh
-  { state: 'Chhattisgarh', commodity: 'Rice', minPrice: 2000, maxPrice: 2500 },
-  { state: 'Chhattisgarh', commodity: 'Soybean', minPrice: 3500, maxPrice: 4500 },
-  { state: 'Chhattisgarh', commodity: 'Pigeon Pea', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Chhattisgarh', commodity: 'Rice', minPrice: 2200, maxPrice: 2800 },
+  { state: 'Chhattisgarh', commodity: 'Soybean', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Chhattisgarh', commodity: 'Pigeon Pea', minPrice: 4500, maxPrice: 5500 },
 
   // Goa
-  { state: 'Goa', commodity: 'Coconut', minPrice: 4000, maxPrice: 5000 },
-  { state: 'Goa', commodity: 'Pineapple', minPrice: 3000, maxPrice: 4000 },
-  { state: 'Goa', commodity: 'Tomato', minPrice: 2500, maxPrice: 3500 },
+  { state: 'Goa', commodity: 'Coconut', minPrice: 5000, maxPrice: 6000 },
+  { state: 'Goa', commodity: 'Pineapple', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Goa', commodity: 'Tomato', minPrice: 3000, maxPrice: 4000 },
 
   // Gujarat
-  { state: 'Gujarat', commodity: 'Cotton', minPrice: 4000, maxPrice: 5000 },
-  { state: 'Gujarat', commodity: 'Groundnut', minPrice: 3000, maxPrice: 4000 },
-  { state: 'Gujarat', commodity: 'Wheat', minPrice: 2000, maxPrice: 3000 },
+  { state: 'Gujarat', commodity: 'Cotton', minPrice: 5000, maxPrice: 6000 },
+  { state: 'Gujarat', commodity: 'Groundnut', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Gujarat', commodity: 'Wheat', minPrice: 2400, maxPrice: 2800 },
 
   // Haryana
-  { state: 'Haryana', commodity: 'Wheat', minPrice: 1800, maxPrice: 2200 },
-  { state: 'Haryana', commodity: 'Rice', minPrice: 2000, maxPrice: 2400 },
-  { state: 'Haryana', commodity: 'Mustard', minPrice: 4000, maxPrice: 4800 },
+  { state: 'Haryana', commodity: 'Wheat', minPrice: 2200, maxPrice: 2600 },
+  { state: 'Haryana', commodity: 'Rice', minPrice: 2400, maxPrice: 2800 },
+  { state: 'Haryana', commodity: 'Mustard', minPrice: 5000, maxPrice: 6000 },
 
   // Himachal Pradesh
-  { state: 'Himachal Pradesh', commodity: 'Apple', minPrice: 8000, maxPrice: 12000 },
-  { state: 'Himachal Pradesh', commodity: 'Peach', minPrice: 6000, maxPrice: 8000 },
-  { state: 'Himachal Pradesh', commodity: 'Plum', minPrice: 5000, maxPrice: 7000 },
+  { state: 'Himachal Pradesh', commodity: 'Apple', minPrice: 10000, maxPrice: 15000 },
+  { state: 'Himachal Pradesh', commodity: 'Peach', minPrice: 8000, maxPrice: 10000 },
+  { state: 'Himachal Pradesh', commodity: 'Plum', minPrice: 6000, maxPrice: 8000 },
 
   // Jharkhand
-  { state: 'Jharkhand', commodity: 'Rice', minPrice: 2000, maxPrice: 2500 },
-  { state: 'Jharkhand', commodity: 'Pulses', minPrice: 3500, maxPrice: 4500 },
-  { state: 'Jharkhand', commodity: 'Potato', minPrice: 1500, maxPrice: 2000 },
+  { state: 'Jharkhand', commodity: 'Rice', minPrice: 2400, maxPrice: 2800 },
+  { state: 'Jharkhand', commodity: 'Pulses', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Jharkhand', commodity: 'Potato', minPrice: 1800, maxPrice: 2200 },
 
   // Karnataka
-  { state: 'Karnataka', commodity: 'Coffee', minPrice: 5000, maxPrice: 6000 },
-  { state: 'Karnataka', commodity: 'Rice', minPrice: 2200, maxPrice: 2600 },
-  { state: 'Karnataka', commodity: 'Onion', minPrice: 3000, maxPrice: 3500 },
+  { state: 'Karnataka', commodity: 'Coffee', minPrice: 6000, maxPrice: 8000 },
+  { state: 'Karnataka', commodity: 'Rice', minPrice: 2400, maxPrice: 2800 },
+  { state: 'Karnataka', commodity: 'Onion', minPrice: 3500, maxPrice: 4000 },
 
   // Kerala
-  { state: 'Kerala', commodity: 'Coconut', minPrice: 3000, maxPrice: 4000 },
-  { state: 'Kerala', commodity: 'Banana', minPrice: 5000, maxPrice: 6000 },
-  { state: 'Kerala', commodity: 'Tea', minPrice: 7000, maxPrice: 9000 },
+  { state: 'Kerala', commodity: 'Coconut', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Kerala', commodity: 'Banana', minPrice: 6000, maxPrice: 7000 },
+  { state: 'Kerala', commodity: 'Tea', minPrice: 8000, maxPrice: 10000 },
 
   // Madhya Pradesh
-  { state: 'Madhya Pradesh', commodity: 'Wheat', minPrice: 1500, maxPrice: 2000 },
-  { state: 'Madhya Pradesh', commodity: 'Rice', minPrice: 1800, maxPrice: 2200 },
-  { state: 'Madhya Pradesh', commodity: 'Pulses', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Madhya Pradesh', commodity: 'Wheat', minPrice: 1800, maxPrice: 2200 },
+  { state: 'Madhya Pradesh', commodity: 'Rice', minPrice: 2000, maxPrice: 2400 },
+  { state: 'Madhya Pradesh', commodity: 'Pulses', minPrice: 4500, maxPrice: 5500 },
 
   // Maharashtra
-  { state: 'Maharashtra', commodity: 'Sugarcane', minPrice: 2500, maxPrice: 3000 },
-  { state: 'Maharashtra', commodity: 'Cotton', minPrice: 3000, maxPrice: 3500 },
-  { state: 'Maharashtra', commodity: 'Turmeric', minPrice: 6000, maxPrice: 8000 },
+  { state: 'Maharashtra', commodity: 'Sugarcane', minPrice: 2800, maxPrice: 3200 },
+  { state: 'Maharashtra', commodity: 'Cotton', minPrice: 3500, maxPrice: 4500 },
+  { state: 'Maharashtra', commodity: 'Turmeric', minPrice: 7000, maxPrice: 9000 },
 
   // Manipur
-  { state: 'Manipur', commodity: 'Rice', minPrice: 3000, maxPrice: 3500 },
-  { state: 'Manipur', commodity: 'Chili', minPrice: 4000, maxPrice: 5000 },
-  { state: 'Manipur', commodity: 'Potato', minPrice: 2000, maxPrice: 2500 },
+  { state: 'Manipur', commodity: 'Rice', minPrice: 3500, maxPrice: 4000 },
+  { state: 'Manipur', commodity: 'Chili', minPrice: 5000, maxPrice: 6000 },
+  { state: 'Manipur', commodity: 'Potato', minPrice: 2500, maxPrice: 3000 },
 
   // Meghalaya
-  { state: 'Meghalaya', commodity: 'Rice', minPrice: 2500, maxPrice: 3000 },
-  { state: 'Meghalaya', commodity: 'Potato', minPrice: 1500, maxPrice: 2000 },
-  { state: 'Meghalaya', commodity: 'Pineapple', minPrice: 3000, maxPrice: 4000 },
+  { state: 'Meghalaya', commodity: 'Rice', minPrice: 2800, maxPrice: 3200 },
+  { state: 'Meghalaya', commodity: 'Potato', minPrice: 1800, maxPrice: 2200 },
+  { state: 'Meghalaya', commodity: 'Pineapple', minPrice: 4000, maxPrice: 5000 },
 
   // Mizoram
-  { state: 'Mizoram', commodity: 'Rice', minPrice: 2000, maxPrice: 3000 },
-  { state: 'Mizoram', commodity: 'Chili', minPrice: 4000, maxPrice: 5000 },
-  { state: 'Mizoram', commodity: 'Cabbage', minPrice: 1500, maxPrice: 2000 },
+  { state: 'Mizoram', commodity: 'Rice', minPrice: 2200, maxPrice: 2800 },
+  { state: 'Mizoram', commodity: 'Chili', minPrice: 5000, maxPrice: 6000 },
+  { state: 'Mizoram', commodity: 'Cabbage', minPrice: 1800, maxPrice: 2200 },
 
   // Nagaland
-  { state: 'Nagaland', commodity: 'Rice', minPrice: 3000, maxPrice: 3500 },
-  { state: 'Nagaland', commodity: 'Chili', minPrice: 4000, maxPrice: 5000 },
-  { state: 'Nagaland', commodity: 'Potato', minPrice: 2000, maxPrice: 2500 },
+  { state: 'Nagaland', commodity: 'Rice', minPrice: 3500, maxPrice: 4000 },
+  { state: 'Nagaland', commodity: 'Chili', minPrice: 5000, maxPrice: 6000 },
+  { state: 'Nagaland', commodity: 'Potato', minPrice: 2500, maxPrice: 3000 },
 
   // Odisha
-  { state: 'Odisha', commodity: 'Rice', minPrice: 1800, maxPrice: 2200 },
-  { state: 'Odisha', commodity: 'Pulses', minPrice: 3500, maxPrice: 4500 },
-  { state: 'Odisha', commodity: 'Mustard', minPrice: 4000, maxPrice: 4800 },
+  { state: 'Odisha', commodity: 'Rice', minPrice: 2000, maxPrice: 2400 },
+  { state: 'Odisha', commodity: 'Pulses', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Odisha', commodity: 'Mustard', minPrice: 5000, maxPrice: 6000 },
 
   // Punjab
-  { state: 'Punjab', commodity: 'Wheat', minPrice: 1600, maxPrice: 2000 },
-  { state: 'Punjab', commodity: 'Rice', minPrice: 2200, maxPrice: 2600 },
-  { state: 'Punjab', commodity: 'Barley', minPrice: 1200, maxPrice: 1500 },
+  { state: 'Punjab', commodity: 'Wheat', minPrice: 1800, maxPrice: 2200 },
+  { state: 'Punjab', commodity: 'Rice', minPrice: 2400, maxPrice: 2800 },
+  { state: 'Punjab', commodity: 'Barley', minPrice: 1500, maxPrice: 2000 },
 
   // Rajasthan
-  { state: 'Rajasthan', commodity: 'Wheat', minPrice: 1500, maxPrice: 2000 },
-  { state: 'Rajasthan', commodity: 'Mustard', minPrice: 4000, maxPrice: 5000 },
-  { state: 'Rajasthan', commodity: 'Coriander', minPrice: 5000, maxPrice: 6000 },
+  { state: 'Rajasthan', commodity: 'Wheat', minPrice: 1800, maxPrice: 2200 },
+  { state: 'Rajasthan', commodity: 'Mustard', minPrice: 5000, maxPrice: 6000 },
+  { state: 'Rajasthan', commodity: 'Coriander', minPrice: 6000, maxPrice: 7000 },
 
   // Sikkim
-  { state: 'Sikkim', commodity: 'Potato', minPrice: 2500, maxPrice: 3000 },
-  { state: 'Sikkim', commodity: 'Green Tea', minPrice: 5000, maxPrice: 6000 },
-  { state: 'Sikkim', commodity: 'Chili', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Sikkim', commodity: 'Potato', minPrice: 3000, maxPrice: 3500 },
+  { state: 'Sikkim', commodity: 'Green Tea', minPrice: 6000, maxPrice: 7000 },
+  { state: 'Sikkim', commodity: 'Chili', minPrice: 5000, maxPrice: 6000 },
 
   // Tamil Nadu
-  { state: 'Tamil Nadu', commodity: 'Rice', minPrice: 2200, maxPrice: 2600 },
-  { state: 'Tamil Nadu', commodity: 'Banana', minPrice: 3000, maxPrice: 4000 },
-  { state: 'Tamil Nadu', commodity: 'Chili', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Tamil Nadu', commodity: 'Rice', minPrice: 2400, maxPrice: 2800 },
+  { state: 'Tamil Nadu', commodity: 'Banana', minPrice: 4000, maxPrice: 5000 },
+  { state: 'Tamil Nadu', commodity: 'Chili', minPrice: 5000, maxPrice: 6000 },
 
   // Telangana
-  { state: 'Telangana', commodity: 'Rice', minPrice: 2000, maxPrice: 2400 },
-  { state: 'Telangana', commodity: 'Chili', minPrice: 4000, maxPrice: 5000 },
-  { state: 'Telangana', commodity: 'Cotton', minPrice: 3000, maxPrice: 3500 },
+  { state: 'Telangana', commodity: 'Rice', minPrice: 2200, maxPrice: 2600 },
+  { state: 'Telangana', commodity: 'Chili', minPrice: 5000, maxPrice: 6000 },
+  { state: 'Telangana', commodity: 'Cotton', minPrice: 4000, maxPrice: 5000 },
 
   // Tripura
-  { state: 'Tripura', commodity: 'Rice', minPrice: 2500, maxPrice: 3000 },
-  { state: 'Tripura', commodity: 'Pulses', minPrice: 3000, maxPrice: 4000 },
-  { state: 'Tripura', commodity: 'Vegetables', minPrice: 1500, maxPrice: 2000 },
+  { state: 'Tripura', commodity: 'Rice', minPrice: 2800, maxPrice: 3200 },
+  { state: 'Tripura', commodity: 'Pulses', minPrice: 3500, maxPrice: 4500 },
+  { state: 'Tripura', commodity: 'Vegetables', minPrice: 2000, maxPrice: 2500 },
 
   // Uttarakhand
-  { state: 'Uttarakhand', commodity: 'Potato', minPrice: 2500, maxPrice: 3000 },
-  { state: 'Uttarakhand', commodity: 'Apple', minPrice: 8000, maxPrice: 12000 },
-  { state: 'Uttarakhand', commodity: 'Green Peas', minPrice: 3000, maxPrice: 4000 },
+  { state: 'Uttarakhand', commodity: 'Potato', minPrice: 3000, maxPrice: 3500 },
+  { state: 'Uttarakhand', commodity: 'Apple', minPrice: 10000, maxPrice: 15000 },
+  { state: 'Uttarakhand', commodity: 'Green Peas', minPrice: 4000, maxPrice: 5000 },
 
   // Uttar Pradesh
-  { state: 'Uttar Pradesh', commodity: 'Sugarcane', minPrice: 2500, maxPrice: 3000 },
-  { state: 'Uttar Pradesh', commodity: 'Wheat', minPrice: 1600, maxPrice: 2000 },
-  { state: 'Uttar Pradesh', commodity: 'Rice', minPrice: 2200, maxPrice: 2600 },
+  { state: 'Uttar Pradesh', commodity: 'Sugarcane', minPrice: 2800, maxPrice: 3200 },
+  { state: 'Uttar Pradesh', commodity: 'Wheat', minPrice: 1800, maxPrice: 2200 },
+  { state: 'Uttar Pradesh', commodity: 'Rice', minPrice: 2400, maxPrice: 2800 },
 
   // West Bengal
-  { state: 'West Bengal', commodity: 'Rice', minPrice: 2200, maxPrice: 2500 },
-  { state: 'West Bengal', commodity: 'Potato', minPrice: 1500, maxPrice: 2000 },
-  { state: 'West Bengal', commodity: 'Jute', minPrice: 3000, maxPrice: 3500 },
+  { state: 'West Bengal', commodity: 'Rice', minPrice: 2400, maxPrice: 2800 },
+  { state: 'West Bengal', commodity: 'Potato', minPrice: 1800, maxPrice: 2200 },
+  { state: 'West Bengal', commodity: 'Jute', minPrice: 3500, maxPrice: 4000 },
 ];
+
+// Adding average price to each item
+data.forEach(item => {
+  item.avgPrice = (item.minPrice + item.maxPrice) / 2;
+});
+
 
 // Adding average price to each item
 data.forEach(item => {
@@ -390,13 +384,6 @@ const WeatherDashboard = () => {
     return 'rgba(200, 200, 200, 0.6)'; // Default color
   };
 
-  const getColorByPrice = (price) => {
-    if (price < 3000) return 'rgba(255, 99, 132, 0.6)';  // Red for low prices
-    if (price < 6000) return 'rgba(255, 206, 86, 0.6)'; // Yellow for mid-low prices
-    if (price < 9000) return 'rgba(54, 162, 235, 0.6)';  // Blue for mid-high prices
-    return 'rgba(75, 192, 192, 0.6)';                     // Green for high prices
-  };
-
   useEffect(() => {
     fetchWeatherData();
   }, []);
@@ -518,7 +505,7 @@ const WeatherDashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-
+        
         {/* Pie Chart of Average Prices */}
         <Grid item xs={12} sm={6}>
           <Card style={{ height: '600px', position: 'relative' }}>
@@ -599,6 +586,7 @@ const WeatherDashboard = () => {
           </Card>
         </Grid>
       </Grid>
+      <JharkhandInfo />
     <>
       {/* Help Dialog */}
       <Dialog open={dialogOpen} onClose={handleHelpClose}>

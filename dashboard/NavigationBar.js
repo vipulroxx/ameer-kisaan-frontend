@@ -23,11 +23,15 @@ const NavigationBar = ({ appName, onMenuSelect, isAuthenticated, onHomeClick }) 
       <Toolbar>
         <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
           {/* Home Icon */}
-            <FaHome onClick={onHomeClick} style={{ 
-              color: 'gold', // Change color to gold
+          <FaHome 
+            onClick={onHomeClick} 
+            style={{ 
+              color: 'gold', 
               transition: '0.3s', 
-              fontSize: '1.5rem' 
-            }} />
+              fontSize: '1.5rem', 
+              cursor: 'pointer' 
+            }} 
+          />
 
           {/* App Name */}
           <Box display="flex" alignItems="center" sx={{ flexGrow: 1, justifyContent: 'center' }}>
@@ -40,15 +44,19 @@ const NavigationBar = ({ appName, onMenuSelect, isAuthenticated, onHomeClick }) 
           <div>
             {isAuthenticated && (
               <>
-                  <FaUserCircle onClick={handleMenuOpen} style={{ 
-              color: 'gold', // Change color to gold
-              transition: '0.3s', 
-              fontSize: '1.5rem' 
-            }} />
+                <FaUserCircle 
+                  onClick={handleMenuOpen} 
+                  style={{ 
+                    color: 'gold', 
+                    transition: '0.3s', 
+                    fontSize: '1.5rem', 
+                    cursor: 'pointer' 
+                  }} 
+                />
                 <Menu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}
-                  onClose={() => handleMenuClose()}
+                  onClose={() => handleMenuClose(null)}
                   transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                   anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                 >

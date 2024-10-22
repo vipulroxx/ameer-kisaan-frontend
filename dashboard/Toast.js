@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Grid, Paper, Typography, Box } from '@mui/material';
 import { FaSeedling, FaAppleAlt, FaCarrot, FaTree, FaPepperHot, FaOilCan } from 'react-icons/fa';
 import CropDetails from '../risk_management/CropDetails.js';
-import InfoDialog from './InfoDialog'; // Import the new InfoDialog component
+import InfoDialog from './InfoDialog';
+import Toast from './Toast'; // Import a Toast component for notifications
 import { Dialog, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { motion } from 'framer-motion'; // For animations
 
 const crops = [
   { name: 'Vegetables', icon: <FaCarrot />, color: '#FF9800', description: ['Tomatoes', 'Onions', 'Carrots'] },
@@ -21,7 +21,9 @@ const crops = [
 const CropSelection = () => {
   const [selectedCrop, setSelectedCrop] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [infoDialogOpen, setInfoDialogOpen] = useState(true); // State for the info dialog
+  const [infoDialogOpen, setInfoDialogOpen] = useState(true);
+  const [videoWatched, setVideoWatched] = useState(false); // State for video watched
+  const [toastOpen, setToastOpen] = useState(false); // State for toast notification
 
   const handleCategorySelect = (category) => {
     setSelectedCrop(category);
@@ -29,12 +31,28 @@ const CropSelection = () => {
   };
 
   const handleClose = () => {
+    if (!videoWatched) {
+      setToastOpen(true); // Show toast if the video hasn't been watched
+      return;
+    }
     setSelectedCrop(null);
     setModalOpen(false);
   };
 
   const handleInfoDialogClose = () => {
+    if (!videoWatched) {
+      setToastOpen(true); // Show toast if the video hasn't been watched
+      return;
+    }
     setInfoDialogOpen(false);
+  };
+
+  const handleVideoComplete = () => {
+    setVideoWatched(true); // Set video as watched
+  };
+
+  const handleToastClose = () => {
+    setToastOpen(false); // Close toast notification
   };
 
   const tutorialSteps = [
@@ -53,7 +71,8 @@ const CropSelection = () => {
         onClose={handleInfoDialogClose} 
         title="Welcome to Crop Selection!" 
         steps={tutorialSteps} 
-        videoUrl={videoUrl} // Optional video tutorial
+        videoUrl={videoUrl} 
+        onVideoComplete={handleVideoComplete} // Pass function to handle video completion
       />
 
       <Box sx={{ padding: 2 }}>
@@ -61,24 +80,20 @@ const CropSelection = () => {
         <Grid container spacing={2}>
           {crops.map((category) => (
             <Grid item xs={4} sm={4} md={3} key={category.name}>
-              <motion.div
-                whileHover={{ scale: 1.05 }} // Enlarge on hover
-                transition={{ duration: 0.2 }}
+              <Paper
+                onClick={() => handleCategorySelect(category.name)}
+                style={{
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  padding: '16px',
+                  transition: 'transform 0.2s',
+                  backgroundColor: category.color,
+                }}
+                elevation={3}
               >
-                <Paper
-                  onClick={() => handleCategorySelect(category.name)}
-                  style={{
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    padding: '16px',
-                    backgroundColor: category.color,
-                  }}
-                  elevation={3}
-                >
-                  <div style={{ fontSize: '40px' }}>{category.icon}</div>
-                  <Typography variant="h6">{category.name}</Typography>
-                </Paper>
-              </motion.div>
+                <div style={{ fontSize: '40px' }}>{category.icon}</div>
+                <Typography variant="h6">{category.name}</Typography>
+              </Paper>
             </Grid>
           ))}
         </Grid>
@@ -93,6 +108,13 @@ const CropSelection = () => {
           {selectedCrop && <CropDetails crop={selectedCrop} onClose={handleClose} />}
         </div>
       </Dialog>
+
+      {/* Toast Notification */}
+      <Toast 
+        open={toastOpen} 
+        onClose={handleToastClose} 
+        message="You must watch the video completely before closing." 
+      />
     </div>
   );
 };
