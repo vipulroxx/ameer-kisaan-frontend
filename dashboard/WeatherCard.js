@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -6,13 +6,13 @@ import {
   Grid,
   Typography,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   Snackbar,
   Alert,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
 } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import {
@@ -27,20 +27,9 @@ import {
   Tooltip,
 } from 'chart.js';
 import { Bar, Pie, Line } from 'react-chartjs-2';
-import {
-  FaThermometerHalf,
-  FaWind,
-  FaTint,
-  FaCloudRain,
-  FaSun,
-  FaUmbrella,
-  FaCloudSunRain,
-  FaLocationArrow,
-  FaSeedling,
-  FaRadiation,
-} from 'react-icons/fa';
-import HelpDialog from './HelpDialog';
+import { FaLocationArrow, FaCloudSunRain, FaSeedling, FaRadiation, FaThermometerHalf, FaWind, FaTint, FaCloudRain, FaSun, FaUmbrella } from 'react-icons/fa';
 import JharkhandInfo from '../auth/JharkhandInfo';
+
 
 // Register the components
 ChartJS.register(
@@ -53,6 +42,7 @@ ChartJS.register(
   Legend,
   ArcElement
 );
+
 
 const data = [
   // Andaman and Nicobar
@@ -201,12 +191,6 @@ data.forEach(item => {
   item.avgPrice = (item.minPrice + item.maxPrice) / 2;
 });
 
-
-// Adding average price to each item
-data.forEach(item => {
-  item.avgPrice = (item.minPrice + item.maxPrice) / 2;
-});
-
 const cropPrices = data;
 
 const cropColors = {
@@ -285,24 +269,13 @@ const WeatherDashboard = () => {
   const [hourlyForecast, setHourlyForecast] = useState([]);
   const [historicalData, setHistoricalData] = useState([]);
   const [forecastData, setForecastData] = useState([]);
-
+  const [currentHelpText, setCurrentHelpText] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [currentHelpText, setCurrentHelpText] = useState("");
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  const handleNotUnderstood = () => {
-    console.log("Not Understood");
-    setSnackbarMessage("Contact admin: ameerkissan@ameerkissan.com");
-    setSnackbarOpen(true);
-  };
-
-  const handleUnderstood = () => {
-    console.log("Understood");
-    setSnackbarMessage("Ok! Great");
-    setSnackbarOpen(true);
-  };
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
@@ -347,26 +320,45 @@ const WeatherDashboard = () => {
     const longitude = 86.2029;
 
     try {
-      const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation`);
-      const result = await response.json();
-      setCurrentWeather(result.current);
-      setHourlyForecast(result.hourly);
+      setLoading(true);
+      const [currentResponse, historicalResponse, forecastResponse] = await Promise.all([
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation`),
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&past_days=10&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m`),
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min`)
+      ]);
 
-      const historicalResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&past_days=10&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m`);
+      if (!currentResponse.ok || !historicalResponse.ok || !forecastResponse.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const currentResult = await currentResponse.json();
       const historicalResult = await historicalResponse.json();
-      setHistoricalData(historicalResult.hourly);
-
-      const forecastResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min`);
       const forecastResult = await forecastResponse.json();
+
+      setCurrentWeather(currentResult.current);
+      setHourlyForecast(currentResult.hourly);
+      setHistoricalData(historicalResult.hourly);
       setForecastData(forecastResult.daily);
     } catch (error) {
-      console.error('Error fetching weather data:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchWeatherData();
   }, []);
+
+  const pieChartData = useMemo(() => ({
+    labels: cropPrices.map(item => item.commodity),
+    datasets: [{
+      label: 'Average Prices',
+      data: cropPrices.map(item => item.avgPrice),
+      backgroundColor: cropPrices.map(item => cropColors[item.commodity] || 'rgba(200, 200, 200, 0.6)'),
+    }],
+  }), [cropPrices]);
+
 
   const getColorByValue = (value, type) => {
     if (type === 'ph') {
@@ -384,21 +376,6 @@ const WeatherDashboard = () => {
     return 'rgba(200, 200, 200, 0.6)'; // Default color
   };
 
-  useEffect(() => {
-    fetchWeatherData();
-  }, []);
-
-  // Pie chart data for average prices
-  const pieChartData = {
-    labels: cropPrices.map(item => item.commodity),
-    datasets: [
-      {
-        label: 'Average Prices',
-        data: cropPrices.map(item => item.avgPrice),
-        backgroundColor: cropPrices.map(item => cropColors[item.commodity] || 'rgba(200, 200, 200, 0.6)'),
-      },
-    ],
-  };
 
   // Bar chart data for forecast
   const forecastChartData = {
@@ -460,6 +437,14 @@ const WeatherDashboard = () => {
         fill: true,
       },
     ],
+  };
+
+  const handleInfoOpen = () => {
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
   };
 
   return (
@@ -587,6 +572,7 @@ const WeatherDashboard = () => {
         </Grid>
       </Grid>
       <JharkhandInfo />
+
     <>
       {/* Help Dialog */}
       <Dialog open={dialogOpen} onClose={handleHelpClose}>
@@ -599,8 +585,6 @@ const WeatherDashboard = () => {
           </Card>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleNotUnderstood} color="primary">Not Understood</Button>
-          <Button onClick={handleUnderstood} color="primary">Understood</Button>
           <Button onClick={handleHelpClose} color="primary">Close</Button>
         </DialogActions>
       </Dialog>
@@ -615,6 +599,7 @@ const WeatherDashboard = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+      
     </>
       
     </Container>

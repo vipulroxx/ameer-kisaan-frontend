@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Typography, Container, Card, CardContent, List, ListItem, ListItemText, Input, Paper, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Button, Typography, Container, Card, CardContent, List, ListItem, ListItemText, Input, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as mobilenet from '@tensorflow-models/mobilenet';
 import '@tensorflow/tfjs-backend-webgl'; 
@@ -94,7 +94,7 @@ const cottonPests = [
   },
 ];
 
-const PestDetection = () => {
+const PestDetection = ({ onClose }) => {
   const [file, setFile] = useState(null);
   const [predictions, setPredictions] = useState([]);
   const [model, setModel] = useState(null);
@@ -141,6 +141,7 @@ const PestDetection = () => {
 
   return (
     <Container style={styles.container}>
+      <Button variant="outlined" onClick={onClose} style={{ marginBottom: '20px' }}>Close</Button>
       <Typography variant="h4" style={styles.title}>Pest Detection</Typography>
 
       <div style={styles.uploadContainer}>
@@ -198,7 +199,7 @@ const PestDetection = () => {
             title={pest.title} 
             description={pest.description} 
             summary={pest.summary}
-            backgroundColor="#fff3cd" // Pale yellow for rice pests
+            backgroundColor="#fff3cd"
           />
         ))}
       </div>
@@ -211,7 +212,7 @@ const PestDetection = () => {
             title={pest.title} 
             description={pest.description} 
             summary={pest.summary}
-            backgroundColor="#d1ecf1" // Pale blue for cotton pests
+            backgroundColor="#d1ecf1"
           />
         ))}
       </div>

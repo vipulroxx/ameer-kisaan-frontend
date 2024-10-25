@@ -18,6 +18,7 @@ import {
   Tooltip,
   FormControlLabel,
   Checkbox,
+  Grid2,
 } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/CloudUpload';
 import QrCodeIcon from '@mui/icons-material/QrCode';
@@ -535,14 +536,12 @@ const DistrictCheckboxSelect = ({ selectedDistricts, handleDistrictChange, selec
 };
 
 const CropRecommendation = () => {
-  const [filter, setFilter] = useState('All');
   const [formOpen, setFormOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [selectedDistricts, setSelectedDistricts] = useState([]);
   const [crops, setCrops] = useState([createEmptyCrop()]);
-  const [helpOpen, setHelpOpen] = useState(false);
   const [soilMapOpen, setSoilMapOpen] = useState(false);
 
   const handleFormSubmit = () => {
@@ -560,10 +559,6 @@ const CropRecommendation = () => {
     setSelectedDistricts(value);
   };
 
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value);
-  };
-
   const handleCropChange = (index, field, value) => {
     const updatedCrops = [...crops];
     updatedCrops[index][field] = value;
@@ -579,29 +574,19 @@ const CropRecommendation = () => {
       <Typography variant="h4" gutterBottom>
         Crop Recommendation
       </Typography>
-      <Button variant="contained" onClick={() => setFormOpen(true)}>
-        Open Crop Recommendation Form
-      </Button>
-      <FormControl fullWidth margin="normal">
-        <InputLabel id="filter-label">Filter by Season</InputLabel>
-        <Select
-          labelId="filter-label"
-          value={filter}
-          onChange={handleFilterChange}
-        >
-          <MenuItem value="All">All</MenuItem>
-          <MenuItem value="Rabi">Rabi</MenuItem>
-          <MenuItem value="Kharif">Kharif</MenuItem>
-        </Select>
-      </FormControl>
-      
-      <Button variant="outlined" color="info" onClick={() => setSoilMapOpen(true)}>
-        Show Soil Types
-      </Button>
 
-      <Button variant="outlined" color="info" onClick={() => setHelpOpen(true)} startIcon={<HelpIcon />}>
-        Help
-      </Button>
+      <Grid container spacing={2} marginBottom={2}>
+        <Grid item>
+          <Button variant="contained" onClick={() => setFormOpen(true)}>
+            Open Crop Recommendation Form
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant="outlined" color="info" onClick={() => setSoilMapOpen(true)}>
+            Show Soil Types
+          </Button>
+        </Grid>
+      </Grid>
 
       <Dialog open={formOpen} onClose={() => setFormOpen(false)}>
         <DialogTitle>Crop Recommendation Form</DialogTitle>
@@ -616,12 +601,14 @@ const CropRecommendation = () => {
                 ))}
               </Select>
             </Grid>
+
             <DistrictCheckboxSelect
               selectedDistricts={selectedDistricts}
               handleDistrictChange={handleDistrictChange}
               selectedState={selectedState}
               states={states}
             />
+
             {crops.map((crop, index) => (
               <Grid item xs={12} key={index}>
                 <InputLabel>Crop Category</InputLabel>
@@ -635,6 +622,7 @@ const CropRecommendation = () => {
                     <MenuItem key={cat.type} value={cat.type}>{cat.type}</MenuItem>
                   ))}
                 </Select>
+
                 <InputLabel>Crop Name</InputLabel>
                 <Select
                   value={crop.name}
@@ -647,12 +635,13 @@ const CropRecommendation = () => {
                     <MenuItem key={cropName} value={cropName}>{cropName}</MenuItem>
                   ))}
                 </Select>
-                <FormControl fullWidth margin="normal" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+
+                <FormControl fullWidth margin="normal">
                   <InputLabel>Soil Type</InputLabel>
                   <Select
                     value={crop.soilType}
                     onChange={(e) => handleCropChange(index, 'soilType', e.target.value)}
-                    style={{ flex: 1, marginRight: '8px' }}
+                    fullWidth
                   >
                     <MenuItem value=""><em>Select Soil Type</em></MenuItem>
                     {soilTypes.map((soilType) => (
@@ -660,6 +649,7 @@ const CropRecommendation = () => {
                     ))}
                   </Select>
                 </FormControl>
+
                 <Tooltip title="Enter quantity in kilograms">
                   <TextField
                     label="Quantity (kg)"
@@ -671,6 +661,7 @@ const CropRecommendation = () => {
                     margin="normal"
                   />
                 </Tooltip>
+
                 <Tooltip title="Enter price in INR">
                   <TextField
                     label="Price (INR)"
@@ -681,6 +672,7 @@ const CropRecommendation = () => {
                     margin="normal"
                   />
                 </Tooltip>
+
                 <Tooltip title="List previous crops grown">
                   <TextField
                     label="Previous Crops"
@@ -691,6 +683,7 @@ const CropRecommendation = () => {
                     margin="normal"
                   />
                 </Tooltip>
+
                 <Tooltip title="List available resources (e.g., water, fertilizers)">
                   <TextField
                     label="Available Resources"
@@ -701,6 +694,7 @@ const CropRecommendation = () => {
                     margin="normal"
                   />
                 </Tooltip>
+
                 <Grid container spacing={1} marginTop={2}>
                   <Grid item xs={12}>
                     <Button
@@ -714,6 +708,7 @@ const CropRecommendation = () => {
                     </Button>
                   </Grid>
                 </Grid>
+
                 <Tooltip title="Enter the quality of the crop">
                   <TextField
                     label="Quality"
@@ -723,6 +718,7 @@ const CropRecommendation = () => {
                     margin="normal"
                   />
                 </Tooltip>
+
                 <Tooltip title="Weather records (e.g., rainfall, temperature)">
                   <TextField
                     label="Weather Record"
@@ -734,8 +730,9 @@ const CropRecommendation = () => {
                 </Tooltip>
               </Grid>
             ))}
-            <Grid item xs={12} style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
-              <Grid container spacing={2}>
+
+            <Grid item xs={12}>
+              <Grid container spacing={2} justifyContent="space-between" marginTop={2}>
                 <Grid item>
                   <Button variant="contained" startIcon={<UploadFileIcon />}>
                     Upload Media
@@ -765,28 +762,13 @@ const CropRecommendation = () => {
         </DialogActions>
       </Dialog>
 
-      <SoilPopup isOpen={soilMapOpen} onClose={() => setSoilMapOpen(false)} />      <div className="soil-map-container">
-
-      </div>
+      <SoilPopup isOpen={soilMapOpen} onClose={() => setSoilMapOpen(false)} />
 
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
         <Alert onClose={() => setSnackbarOpen(false)} severity="info">
           {snackbarMessage}
         </Alert>
       </Snackbar>
-
-      <Dialog open={helpOpen} onClose={() => setHelpOpen(false)}>
-        <DialogTitle>Help</DialogTitle>
-        <DialogContent>
-          <Typography>
-            This form allows you to select a state and district, enter crop details, and generate crop recommendations.
-            Please ensure all fields are filled out before submitting.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setHelpOpen(false)} color="primary">Close</Button>
-        </DialogActions>
-      </Dialog>
 
       {selectedState && selectedDistricts.length > 0 && (
         <div>
@@ -800,4 +782,4 @@ const CropRecommendation = () => {
   );
 };
 
-export default CropRecommendation;
+export default CropRecommendation;  

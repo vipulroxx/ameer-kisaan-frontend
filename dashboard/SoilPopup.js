@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './SoilMapDialog.css'; // Make sure to include your CSS styles
 
 const SoilPopup = ({ isOpen, onClose }) => {
+	const [selectedSoil, setSelectedSoil] = useState(null);
 	const soilData = {
 			"Sandy Soil": {
 					description: "Sandy soil is light, warm, dry, and tends to be acidic and low in nutrients. Quick drainage but can dry out quickly in summer.",
@@ -63,34 +64,40 @@ const SoilPopup = ({ isOpen, onClose }) => {
 	};
 
 	const handleChipClick = (type) => {
-			const soilInfo = soilData[type];
-			alert(`Clicked on ${type}:\nDescription: ${soilInfo.description}\nTraits: ${soilInfo.traits.join(', ')}`);
-	};
+		setSelectedSoil(soilData[type]);
+};
 
-	return (
-			<>
-					{isOpen && (
-							<div className="popup">
-									<div className="popup-content">
-											<span className="close" onClick={onClose}>&times;</span>
-											<h2>Soil Types</h2>
-											<p>Soil is a natural resource categorized into different types, each with distinct characteristics.</p>
-											<div className="soil-types">
-													{Object.keys(soilData).map((type) => (
-															<span
-																	key={type}
-																	className="soil-chip"
-																	onClick={() => handleChipClick(type)}
-															>
-																	{type}
-															</span>
-													))}
-											</div>
+return (
+	<>
+			{isOpen && (
+					<div className="popup">
+							<div className="popup-content">
+									<span className="close" onClick={onClose}>&times;</span>
+									<h2>Soil Types</h2>
+									<p>Soil is a natural resource categorized into different types, each with distinct characteristics.</p>
+									<div className="soil-types">
+											{Object.keys(soilData).map((type) => (
+													<span
+															key={type}
+															className="soil-chip"
+															onClick={() => handleChipClick(type)}
+													>
+															{type}
+													</span>
+											))}
 									</div>
+
+									{selectedSoil && (
+											<div className="soil-details">
+													<h3>{selectedSoil.description}</h3>
+													<p><strong>Traits:</strong> {selectedSoil.traits.join(', ')}</p>
+											</div>
+									)}
 							</div>
-					)}
-			</>
-	);
+					</div>
+			)}
+	</>
+);
 };
 
 export default SoilPopup;
