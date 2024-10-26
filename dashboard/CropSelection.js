@@ -6,6 +6,7 @@ import InfoDialog from './InfoDialog'; // Import the new InfoDialog component
 import { Dialog, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { motion } from 'framer-motion'; // For animations
+import PhotoViewer from '../risk_management/PhotoViewer.js';
 
 const crops = [
   { name: 'Vegetables', icon: <FaCarrot />, color: '#FF9800', description: ['Tomatoes', 'Onions', 'Carrots'] },

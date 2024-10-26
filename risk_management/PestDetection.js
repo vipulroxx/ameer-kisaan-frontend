@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Typography, Container, Card, CardContent, List, ListItem, ListItemText, Input, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Button, Typography, Container, Card, CardContent, List, ListItem, ListItemText, Input, Accordion, AccordionSummary, AccordionDetails, Box } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as mobilenet from '@tensorflow-models/mobilenet';
-import '@tensorflow/tfjs-backend-webgl'; 
+import '@tensorflow/tfjs-backend-webgl';
 import * as tf from '@tensorflow/tfjs';
 
 const PestCard = ({ title, description, summary, backgroundColor }) => (
@@ -144,7 +144,7 @@ const PestDetection = ({ onClose }) => {
       <Button variant="outlined" onClick={onClose} style={{ marginBottom: '20px' }}>Close</Button>
       <Typography variant="h4" style={styles.title}>Pest Detection</Typography>
 
-      <div style={styles.uploadContainer}>
+      <Box style={styles.uploadContainer}>
         <Input
           type="file"
           accept="image/*"
@@ -160,10 +160,10 @@ const PestDetection = ({ onClose }) => {
         >
           Detect
         </Button>
-      </div>
+      </Box>
 
       {imgSrc && (
-        <div style={styles.imagePredictionContainer}>
+        <Box style={styles.imagePredictionContainer}>
           <Card style={styles.imageCard}>
             <CardContent>
               <img id="uploaded-image" src={imgSrc} alt="Uploaded" style={styles.image} />
@@ -188,7 +188,7 @@ const PestDetection = ({ onClose }) => {
               </List>
             </CardContent>
           </Card>
-        </div>
+        </Box>
       )}
 
       <Typography variant="h5" style={styles.categoryTitle}>Rice Pests</Typography>

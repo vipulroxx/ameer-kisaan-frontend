@@ -1,26 +1,81 @@
-import React, { useState } from 'react';
-import ActionForm from './ActionForm';
+import React, { useState } from 'react'
+import ActionForm from './ActionForm'
 import {
-  Paper, Typography, Grid, Button, Dialog, DialogActions, DialogContent,
-  DialogTitle, IconButton, Card, CardContent, CardActions
-} from '@mui/material';
+  Paper,
+  Typography,
+  Grid,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Card,
+  CardContent,
+  CardActions
+} from '@mui/material'
+import { Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+
 import {
-  Timeline, TimelineItem, TimelineSeparator, TimelineDot,
-  TimelineContent, TimelineOppositeContent
-} from '@mui/lab';
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineDot,
+  TimelineContent,
+  TimelineOppositeContent
+} from '@mui/lab'
 import {
-  FaSeedling, FaImage, FaAppleAlt, FaCarrot, FaTree,
-  FaPepperHot, FaLeaf, FaQuestionCircle, FaInfoCircle,
-  FaStethoscope, FaTrash
-} from 'react-icons/fa';
+  FaSeedling,
+  FaImage,
+  FaAppleAlt,
+  FaCarrot,
+  FaTree,
+  FaPepperHot,
+  FaLeaf,
+  FaQuestionCircle,
+  FaInfoCircle,
+  FaStethoscope,
+  FaTrash
+} from 'react-icons/fa'
+import PhotoViewer from './PhotoViewer'
+import ReportDialog from './ReportDialog'
+import IssueRectification from './IssueRectification'
+import TomatoImage from '../Agricultural-crops/tomato/tomato.jpeg'
+import timeLineImg1 from '../Agricultural-crops/tomato/image (11).jpeg'
+import timeLineImg2 from '../Agricultural-crops/tomato/image (6).jpg'
+import timeLineImg3 from '../Agricultural-crops/tomato/image (10).jpg'
+import timeLineImg4 from '../Agricultural-crops/tomato/image (12).jpeg'
+import timeLineImg5 from '../Agricultural-crops/tomato/image (13).jpeg'
+import timeLineImg6 from '../Agricultural-crops/tomato/image (9).jpeg'
+
+import { sub } from '@tensorflow/tfjs'
+import { Upload, UploadFileSharp } from '@mui/icons-material'
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const CropDetails = ({ crop, onClose }) => {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [helpSubcategory, setHelpSubcategory] = useState('');
-  const [openAnalyze, setOpenAnalyze] = useState(false);
-  const [openFix, setOpenFix] = useState(false);
-  const [openMarkBad, setOpenMarkBad] = useState(false);
-  const [images, setImages] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false)
+  const [helpSubcategory, setHelpSubcategory] = useState('')
+  const [openAnalyze, setOpenAnalyze] = useState(false)
+  const [openFix, setOpenFix] = useState(false)
+  const [openMarkBad, setOpenMarkBad] = useState(false)
+  const [images, setImages] = useState([])
+  const [dialogState, setDialogState] = useState({
+    analyze: false,
+    fix: false,
+    markBad: false
+  })
+  const [reportData, setReportData] = useState(null)
+  const [openReportDialog, setOpenReportDialog] = useState(false)
+  const [openRectification, setOpenRectification] = useState(false)
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [analysisOpen, setAnalysisOpen] = useState(false);
+  const [analysisReport, setAnalysisReport] = useState([]);
 
   const cropDetails = {
     Vegetables: {
@@ -407,120 +462,252 @@ const CropDetails = ({ crop, onClose }) => {
     },
   };
   
-  const handleViewImages = () => {
-    console.log('Viewing images:', images);
-  };
-
-  const handleAnalyze = (data) => {
-    console.log('Analyzing crop:', crop, 'Data:', data);
-  };
-
-  const handleFixIssue = (data) => {
-    console.log('Fixing issues for crop:', crop, 'Data:', data);
-  };
-
-  const handleMarkAsBad = (data) => {
-    console.log('Marking crop as bad:', crop, 'Data:', data);
-  };
+  const problems = []
 
   const colorMap = {
     fruit: '#ffcccb',
     vegetable: '#ccffcc',
     grain: '#ffffcc',
-    herb: '#e6ccff',
-  };
-
-  const handleRequestHelp = (subcategory) => {
-    setHelpSubcategory(subcategory);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
-  if (!cropDetails[crop]) {
-    return (
-      <Paper style={{ padding: '20px', backgroundColor: '#ffffff' }}>
-        <Typography variant="h4" color="error">Crop not found</Typography>
-      </Paper>
-    );
+    herb: '#e6ccff'
   }
 
-  const cropInfo = cropDetails[crop];
-  const cropType = cropInfo.type || 'unknown';
-  const backgroundColor = colorMap[cropType] || '#ffffff';
+  const cropInfo = cropDetails[crop]
+  const cropType = cropInfo.type || 'unknown'
+  const backgroundColor = colorMap[cropType] || '#ffffff'
+
+  const handleViewImages = () => {
+    console.log('Viewing images:', images)
+  }
+
+  const handleAnalyze = data => {
+    console.log('Analyzing crop:', crop, 'Data:', data)
+    setReportData(data)
+    setOpenReportDialog(true)
+    setDialogState(prev => ({ ...prev, analyze: false }))
+  }
+
+  const handleCloseReportDialog = () => {
+    setOpenReportDialog(false)
+  }
+
+  const handleFixIssue = data => {
+    console.log('Fixing issues for crop:', crop, 'Data:', data)
+    setDialogState(prev => ({ ...prev, fix: false }))
+  }
+
+  const handleRectificationClose = () => {
+    setOpenRectification(false)
+  }
+
+  const handleMarkAsBad = data => {
+    console.log('Marking crop as bad:', crop, 'Data:', data)
+    setDialogState(prev => ({ ...prev, markBad: false }))
+  }
+
+  const handleRequestHelp = subcategory => {
+    setHelpSubcategory(subcategory)
+    setOpenDialog(true)
+  }
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false)
+  }
+
+  const [uploadStatus, setUploadStatus] = useState(
+    cropInfo.subcategories[helpSubcategory]?.timeline?.map(() => 'incomplete') || []
+  );
+
+  const handleTimelineAnalyze = () => {
+    const report = uploadStatus.map((status, index) => ({
+      time: cropInfo.subcategories[cropInfo.helpSubcategory].timeline[index].time,
+      status,
+      error: status === 'error' ? 'Potential issue with image quality.' : '',
+    }));
+    setAnalysisReport(report);
+    setAnalysisOpen(true);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  const handleAnalysisDialogClose = () => {
+    setAnalysisOpen(false);
+  };
+
+  const handleFileUpload = (index) => {
+    const newStatus = [...uploadStatus];
+    const isSuccess = Math.random() > 0.5; // Simulate success or failure
+    newStatus[index] = isSuccess ? 'success' : 'error';
+    setUploadStatus(newStatus);
+    showSnackbar(isSuccess ? 'Upload successful!' : 'Upload failed. Please try again.', isSuccess ? 'success' : 'error');
+  };
+
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  const handleCloseAnalysis = () => {
+    setAnalysisOpen(false);
+  };
+
+  if (!cropInfo) {
+    return (
+      <Paper style={{ padding: '20px', backgroundColor: '#ffffff' }}>
+        <Typography variant='h4' color='error'>
+          Crop not found
+        </Typography>
+      </Paper>
+    )
+  }
 
   return (
-    <Paper style={{ padding: '20px', maxHeight: '600px', overflowY: 'auto', backgroundColor, width: '80%', margin: '0 auto' }}>
-      <Typography variant="h4" style={{ marginBottom: '20px', fontWeight: 'bold', color: '#0d47a1' }}>
+    <Paper
+      style={{
+        padding: '20px',
+        maxHeight: '600px',
+        overflowY: 'auto',
+        backgroundColor,
+        width: '80%',
+        margin: '0 auto'
+      }}
+    >
+      <PhotoViewer />
+      <Typography
+        variant='h4'
+        style={{ marginBottom: '20px', fontWeight: 'bold', color: '#0d47a1' }}
+      >
         {cropInfo.icon} {crop}
       </Typography>
-      <Typography variant="h6" style={{ marginBottom: '20px', color: '#424242' }}>
+      <Typography
+        variant='h6'
+        style={{ marginBottom: '20px', color: '#424242' }}
+      >
         {cropInfo.description}
       </Typography>
-      <Typography variant="h5" style={{ marginBottom: '10px', color: '#388e3c' }}>Benefits:</Typography>
+      <Typography
+        variant='h5'
+        style={{ marginBottom: '10px', color: '#388e3c' }}
+      >
+        Benefits:
+      </Typography>
       <ul style={{ marginLeft: '20px' }}>
-        {cropInfo.benefits.map((benefit) => (
-          <li key={benefit} style={{ fontSize: '18px' }}>{benefit}</li>
+        {cropInfo.benefits.map(benefit => (
+          <li key={benefit} style={{ fontSize: '18px' }}>
+            {benefit}
+          </li>
         ))}
       </ul>
-      <Typography variant="h5" style={{ marginBottom: '10px', color: '#388e3c' }}>Tips:</Typography>
+      <Typography
+        variant='h5'
+        style={{ marginBottom: '10px', color: '#388e3c' }}
+      >
+        Tips:
+      </Typography>
       <ul style={{ marginLeft: '20px' }}>
-        {cropInfo.tips.map((tip) => (
-          <li key={tip} style={{ fontSize: '18px' }}>{tip}</li>
+        {cropInfo.tips.map(tip => (
+          <li key={tip} style={{ fontSize: '18px' }}>
+            {tip}
+          </li>
         ))}
       </ul>
-      <Typography variant="h5" style={{ marginBottom: '10px', color: '#388e3c' }}>Subcategories:</Typography>
-      <Grid container spacing={2}>
-        {Object.keys(cropInfo.subcategories).map((subcategory) => (
+      <Typography
+        variant='h5'
+        style={{ marginBottom: '10px', color: '#388e3c' }}
+      >
+        Subcategories:
+      </Typography>
+      <Grid container spacing={1}>
+        {Object.keys(cropInfo.subcategories).map(subcategory => (
           <Grid item xs={12} sm={6} md={4} key={subcategory}>
-            <Card elevation={3} style={{ marginBottom: '16px', '&:hover': { boxShadow: '0 0 15px rgba(0,0,0,0.3)' } }}>
+            <Card elevation={3} style={{ marginBottom: '16px' }}>
               <CardContent>
-                <Typography variant="h6" style={{ fontWeight: 'bold' }}>{subcategory}</Typography>
-                <Typography variant="body1"><strong>Soil:</strong> {cropInfo.subcategories[subcategory].soil}</Typography>
-                <Typography variant="body1"><strong>Watering:</strong> {cropInfo.subcategories[subcategory].watering}</Typography>
-                <Typography variant="body1"><strong>Sunlight:</strong> {cropInfo.subcategories[subcategory].sunlight}</Typography>
-                <Typography variant="body1"><strong>Notes:</strong> {cropInfo.subcategories[subcategory].notes}</Typography>
+                <Typography variant='h6' style={{ fontWeight: 'bold' }}>
+                  {subcategory}
+                </Typography>
+                {/* Image for the Subcategory */}
+                {cropInfo.subcategories[subcategory].image && (
+                  <img
+                    src={cropInfo.subcategories[subcategory].image}
+                    style={{
+                      width: '100%',
+                      height: 'auto',
+                      maxHeight: '150px',
+                      marginBottom: '10px'
+                    }}
+                  />
+                )}{' '}
+                <Typography variant='h6' style={{ fontWeight: 'bold' }}>
+                  {subcategory}
+                </Typography>
+                <Typography variant='body1'>
+                  <strong>Soil:</strong>{' '}
+                  {cropInfo.subcategories[subcategory].soil}
+                </Typography>
+                <Typography variant='body1'>
+                  <strong>Watering:</strong>{' '}
+                  {cropInfo.subcategories[subcategory].watering}
+                </Typography>
+                <Typography variant='body1'>
+                  <strong>Sunlight:</strong>{' '}
+                  {cropInfo.subcategories[subcategory].sunlight}
+                </Typography>
+                <Typography variant='body1'>
+                  <strong>Notes:</strong>{' '}
+                  {cropInfo.subcategories[subcategory].notes}
+                </Typography>
               </CardContent>
 
-              {/* Action Forms for various actions */}
+              {/* Action Forms */}
               <ActionForm
-                open={openAnalyze}
-                onClose={() => setOpenAnalyze(false)}
+                open={dialogState.analyze}
+                onClose={() =>
+                  setDialogState(prev => ({ ...prev, analyze: false }))
+                }
                 onSubmit={handleAnalyze}
-                actionType="Analysis"
+                actionType='Analysis'
               />
               <ActionForm
-                open={openFix}
-                onClose={() => setOpenFix(false)}
+                open={dialogState.fix}
+                onClose={() =>
+                  setDialogState(prev => ({ ...prev, fix: false }))
+                }
                 onSubmit={handleFixIssue}
-                actionType="Issue Fix"
+                actionType='Issue Fix'
               />
-              <ActionForm
-                open={openMarkBad}
-                onClose={() => setOpenMarkBad(false)}
-                onSubmit={handleMarkAsBad}
-                actionType="Mark as Bad"
-              />
-
-              <CardActions style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <CardActions
+                style={{ display: 'flex', justifyContent: 'space-between' }}
+              >
                 <div>
-                  <IconButton color="primary" onClick={() => handleRequestHelp(subcategory)} style={{ marginRight: '8px' }}>
+                  <IconButton
+                    title='Request Help'
+                    onClick={() => handleRequestHelp(subcategory)}
+                  >
                     <FaQuestionCircle />
                   </IconButton>
-                  <IconButton color="primary" onClick={handleViewImages} style={{ marginRight: '8px' }}>
+                  <IconButton title='View Images' onClick={handleViewImages}>
                     <FaImage />
                   </IconButton>
                 </div>
                 <div>
-                  <IconButton color="secondary" onClick={() => setOpenAnalyze(true)}>
+                  <IconButton
+                    color='secondary'
+                    onClick={() =>
+                      setDialogState(prev => ({ ...prev, analyze: true }))
+                    }
+                  >
                     <FaInfoCircle />
                   </IconButton>
-                  <IconButton color="warning" onClick={() => setOpenFix(true)}>
-                    <FaStethoscope />
-                  </IconButton>
-                  <IconButton color="error" onClick={() => setOpenMarkBad(true)}>
+                  <IconButton
+                    color='error'
+                    onClick={() => handleMarkAsBad(subcategory)}
+                  >
                     <FaTrash />
                   </IconButton>
                 </div>
@@ -530,31 +717,108 @@ const CropDetails = ({ crop, onClose }) => {
         ))}
       </Grid>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle style={{ backgroundColor: '#f5f5f5' }}>Timeline for {helpSubcategory}</DialogTitle>
-        <DialogContent style={{ backgroundColor: '#ffffff' }}>
-          <Timeline>
+      <ReportDialog
+        open={openReportDialog}
+        onClose={handleCloseReportDialog}
+        data={reportData}
+      />
+
+      <IssueRectification
+        open={openRectification}
+        onClose={() => setOpenRectification(false)}
+        problems={problems}
+      />
+
+<>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ style: { padding: '16px' } }}
+      >
+        <DialogTitle style={{ backgroundColor: '#f5f5f5', textAlign: 'center' }}>
+          Timeline for {helpSubcategory}
+        </DialogTitle>
+        <DialogContent
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            maxHeight: '400px',
+            overflowY: 'auto',
+          }}
+        >
+          <Timeline style={{ width: '100%' }}>
             {cropInfo.subcategories[helpSubcategory]?.timeline?.map((event, index) => (
               <TimelineItem key={index}>
-                <TimelineOppositeContent>{event.time}</TimelineOppositeContent>
+                <TimelineOppositeContent style={{ textAlign: 'right' }}>
+                  {event.time}
+                </TimelineOppositeContent>
                 <TimelineSeparator>
                   <TimelineDot>{event.icon}</TimelineDot>
                 </TimelineSeparator>
-                <TimelineContent>{event.description}</TimelineContent>
+                <TimelineContent>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {event.image && (
+                      <img
+                        src={event.image}
+                        alt={event.description}
+                        style={{ width: '100px', height: 'auto', marginRight: '8px' }}
+                      />
+                    )}
+                    <span>{event.description}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={() => handleFileUpload(index)}
+                      style={{ marginLeft: '8px' }}
+                    />
+                    {uploadStatus[index] === 'success' ? (
+                      <span style={{ marginLeft: '8px', color: 'green' }}>✔️</span>
+                    ) : uploadStatus[index] === 'error' ? (
+                      <span style={{ marginLeft: '8px', color: 'red' }}>❌</span>
+                    ) : null}
+                  </div>
+                </TimelineContent>
               </TimelineItem>
-            ))}
+            )) || (
+              <Typography>No timeline data available for this subcategory.</Typography>
+            )}
           </Timeline>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">Close</Button>
+          <Button onClick={handleAnalyze} color="primary">Analyze Timeline</Button>
         </DialogActions>
       </Dialog>
 
-      <Button onClick={onClose} variant="outlined" color="primary" style={{ marginTop: '20px' }}>
-        Close
-      </Button>
-    </Paper>
-  );
-};
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={uploadStatus.includes('error') ? 'error' : 'success'}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
 
-export default CropDetails;
+      <Dialog
+        open={analysisOpen}
+        onClose={handleAnalysisDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Analysis Report</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            {analysisReport || 'No analysis available.'}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAnalysisDialogClose} color="primary">Close</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+
+    </Paper>
+  )
+}
+
+export default CropDetails

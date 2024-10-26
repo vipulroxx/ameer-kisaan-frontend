@@ -24,9 +24,10 @@ import UploadFileIcon from '@mui/icons-material/CloudUpload';
 import QrCodeIcon from '@mui/icons-material/QrCode';
 import LocalFloristIcon from '@mui/icons-material/LocalFlorist';
 import HelpIcon from '@mui/icons-material/Help';
-import CropDataCharts from './CropDataCharts';
+import CropDataCharts from '../auth/CropDataCharts';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js';
 import SoilPopup from './SoilPopup';
+import JharkhandInfo from '../auth/JharkhandInfo';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, Legend);
 
@@ -587,7 +588,7 @@ const CropRecommendation = () => {
           </Button>
         </Grid>
       </Grid>
-
+      
       <Dialog open={formOpen} onClose={() => setFormOpen(false)}>
         <DialogTitle>Crop Recommendation Form</DialogTitle>
         <DialogContent>
@@ -778,6 +779,7 @@ const CropRecommendation = () => {
           <CropDataCharts data={cropData} selectedState={selectedState} selectedDistricts={selectedDistricts} />
         </div>
       )}
+      <JharkhandInfo />
     </Container>
   );
 };

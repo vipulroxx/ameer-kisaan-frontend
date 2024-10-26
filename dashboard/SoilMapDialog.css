@@ -88,7 +88,7 @@ p {
 	border-radius: 50%;
 	pointer-events: none; /* Prevent interfering with mouse events */
 	display: none;
-	background: url('./Jharkhand.png') no-repeat; /* Use a dynamic URL if needed */
+	background: url('../auth/Jharkhand.png') no-repeat; /* Use a dynamic URL if needed */
 	background-size: 200%; /* Adjust based on how much you want to zoom */
 	transition: display 0.1s ease;
 }

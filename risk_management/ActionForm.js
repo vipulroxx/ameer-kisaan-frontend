@@ -7,6 +7,14 @@ import {
   TextField,
   Button,
   Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
+  Typography
 } from '@mui/material';
 
 const ActionForm = ({ open, onClose, onSubmit, actionType }) => {
@@ -18,15 +26,27 @@ const ActionForm = ({ open, onClose, onSubmit, actionType }) => {
     fertilizerType: '',
     sunlightRequirements: '',
     expectedHarvestTime: '',
-    pestControlMeasures: '',
+    pestControlMeasures: [],
   });
 
+  const soilTypes = ['Clay', 'Sandy', 'Loamy', 'Peaty', 'Saline'];
+  const pestControlOptions = ['Insecticide', 'Herbicide', 'Natural Predators', 'Traps'];
+
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    const { name, value, type, checked } = event.target;
+    if (type === 'checkbox') {
+      setFormData((prev) => ({
+        ...prev,
+        pestControlMeasures: checked
+          ? [...prev.pestControlMeasures, value]
+          : prev.pestControlMeasures.filter((measure) => measure !== value),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = () => {
@@ -35,7 +55,13 @@ const ActionForm = ({ open, onClose, onSubmit, actionType }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        style: { backgroundColor: 'white' },
+      }}
+    >
       <DialogTitle>{`Submit ${actionType}`}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>
@@ -65,16 +91,21 @@ const ActionForm = ({ open, onClose, onSubmit, actionType }) => {
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              margin="dense"
-              label="Soil Type"
-              type="text"
-              fullWidth
-              variant="outlined"
-              name="soilType"
-              value={formData.soilType}
-              onChange={handleChange}
-            />
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Soil Type</InputLabel>
+              <Select
+                name="soilType"
+                value={formData.soilType}
+                onChange={handleChange}
+                label="Soil Type"
+              >
+                {soilTypes.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -125,16 +156,23 @@ const ActionForm = ({ open, onClose, onSubmit, actionType }) => {
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              margin="dense"
-              label="Pest Control Measures"
-              type="text"
-              fullWidth
-              variant="outlined"
-              name="pestControlMeasures"
-              value={formData.pestControlMeasures}
-              onChange={handleChange}
-            />
+            <Typography variant="h6">Pest Control Measures:</Typography>
+            <FormGroup>
+              {pestControlOptions.map((option) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.pestControlMeasures.includes(option)}
+                      onChange={handleChange}
+                      name="pestControlMeasures"
+                      value={option}
+                    />
+                  }
+                  label={option}
+                  key={option}
+                />
+              ))}
+            </FormGroup>
           </Grid>
         </Grid>
       </DialogContent>

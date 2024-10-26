@@ -28,7 +28,6 @@ import {
 } from 'chart.js';
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import { FaLocationArrow, FaCloudSunRain, FaSeedling, FaRadiation, FaThermometerHalf, FaWind, FaTint, FaCloudRain, FaSun, FaUmbrella } from 'react-icons/fa';
-import JharkhandInfo from '../auth/JharkhandInfo';
 
 
 // Register the components
@@ -571,7 +570,7 @@ const WeatherDashboard = () => {
           </Card>
         </Grid>
       </Grid>
-      <JharkhandInfo />
+      
 
     <>
       {/* Help Dialog */}
