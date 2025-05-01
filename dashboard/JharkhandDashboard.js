@@ -1,11 +1,11 @@
 import React from 'react';
-import { Grid, Paper, Typography, Card, CardContent } from '@mui/material';
+import { Paper, Typography, Card, CardContent, Box } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { BarChart, Agriculture, Grain, EmojiNature } from '@mui/icons-material'; // Import icons
+import { Agriculture, Grain, EmojiNature } from '@mui/icons-material';
+import './JharkhandDashboard.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
 
 const paddyData = {
 	labels: [
@@ -148,108 +148,67 @@ const thrustAreas = [
 	'Farm mechanization (Equipment bank for custom hiring)',
 ];
 
-const styles = {
-  container: {
-    padding: '20px',
-  },
-  paper: {
-    padding: '20px',
-    marginBottom: '20px',
-    textAlign: 'center',
-  },
-  title: {
-    marginBottom: '20px',
-  },
-  card: {
-    marginBottom: '20px',
-  },
-  icon: {
-    marginRight: '8px',
-  },
-};
-
 const JharkhandDashboard = () => {
   return (
-    <div style={styles.container}>
-      <Typography variant="h4" align="center" style={styles.title}>
+    <Box className="dashboard-root">
+      <Typography variant="h4" className="dashboard-title">
         Jharkhand Agricultural Dashboard
       </Typography>
-			
-      <Grid container spacing={2}>
-				<Grid item xs={12} md={6}>
-          <Paper elevation={3} style={styles.paper}>
-            <Typography variant="h6">Paddy Production Over Years</Typography>
-            <Bar data={paddyData} options={{ scales: { y: { beginAtZero: true } } }} />
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} style={styles.paper}>
-            <Typography variant="h6">Maize Production Over Years</Typography>
-            <Bar data={maizeData} options={{ scales: { y: { beginAtZero: true } } }} />
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} style={styles.paper}>
-            <Typography variant="h6">Pulses Production Over Years</Typography>
-            <Bar data={pulsesData} options={{ scales: { y: { beginAtZero: true } } }} />
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} style={styles.paper}>
-            <Typography variant="h6">Oilseeds Production Over Years</Typography>
-            <Bar data={oilseedsData} options={{ scales: { y: { beginAtZero: true } } }} />
-          </Paper>
-        </Grid>
-				<Grid item xs={12} md={6}>
-          <Card elevation={3} style={styles.card}>
-            <CardContent>
-              <Typography variant="h6" align="center">
-                <Agriculture style={styles.icon} /> Key Achievements
+      <Box className="dashboard-grid">
+        <Paper elevation={3} className="dashboard-paper">
+          <Typography variant="h6">Paddy Production Over Years</Typography>
+          <Bar data={paddyData} options={{ scales: { y: { beginAtZero: true } } }} />
+        </Paper>
+        <Paper elevation={3} className="dashboard-paper">
+          <Typography variant="h6">Maize Production Over Years</Typography>
+          <Bar data={maizeData} options={{ scales: { y: { beginAtZero: true } } }} />
+        </Paper>
+        <Paper elevation={3} className="dashboard-paper">
+          <Typography variant="h6">Pulses Production Over Years</Typography>
+          <Bar data={pulsesData} options={{ scales: { y: { beginAtZero: true } } }} />
+        </Paper>
+        <Paper elevation={3} className="dashboard-paper">
+          <Typography variant="h6">Oilseeds Production Over Years</Typography>
+          <Bar data={oilseedsData} options={{ scales: { y: { beginAtZero: true } } }} />
+        </Paper>
+        <Card elevation={3} className="dashboard-card">
+          <CardContent>
+            <Typography variant="h6" align="center">
+              <Agriculture className="dashboard-icon" /> Key Achievements
+            </Typography>
+            {achievements.map((achievement, index) => (
+              <Typography key={index} variant="body1" style={{ margin: '5px 0' }}>
+                • {achievement}
               </Typography>
-              {achievements.map((achievement, index) => (
-                <Typography key={index} variant="body1" style={{ margin: '5px 0' }}>
-                  • {achievement}
-                </Typography>
-              ))}
-            </CardContent>
-          </Card>
-					</Grid>
-					
-					<Grid item xs={4} md={6}>
-          <Card elevation={3} style={styles.card}>
-            <CardContent>
-              <Typography variant="h6" align="center">
-                <Grain style={styles.icon} /> Thrust Areas
+            ))}
+          </CardContent>
+        </Card>
+        <Card elevation={3} className="dashboard-card">
+          <CardContent>
+            <Typography variant="h6" align="center">
+              <Grain className="dashboard-icon" /> Thrust Areas
+            </Typography>
+            {thrustAreas.map((area, index) => (
+              <Typography key={index} variant="body1" style={{ margin: '5px 0' }}>
+                • {area}
               </Typography>
-              {thrustAreas.map((area, index) => (
-                <Typography key={index} variant="body1" style={{ margin: '5px 0' }}>
-                  • {area}
-                </Typography>
-              ))}
-            </CardContent>
-          </Card>
-					</Grid>
-
-					<Grid item xs={12} md={6}>
-          <Card elevation={3} style={styles.card}>
-            <CardContent>
-              <Typography variant="h6" align="center">
-                <EmojiNature style={styles.icon} /> Constraints
+            ))}
+          </CardContent>
+        </Card>
+        <Card elevation={3} className="dashboard-card">
+          <CardContent>
+            <Typography variant="h6" align="center">
+              <EmojiNature className="dashboard-icon" /> Constraints
+            </Typography>
+            {constraints.map((constraint, index) => (
+              <Typography key={index} variant="body1" style={{ margin: '5px 0' }}>
+                • {constraint}
               </Typography>
-              {constraints.map((constraint, index) => (
-                <Typography key={index} variant="body1" style={{ margin: '5px 0' }}>
-                  • {constraint}
-                </Typography>
-              ))}
-            </CardContent>
-          </Card>
-					</Grid>
-					
-        </Grid>
-    </div>
+            ))}
+          </CardContent>
+        </Card>
+      </Box>
+    </Box>
   );
 };
 

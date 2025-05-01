@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './SoilMapDialog.css'; // Make sure to include your CSS styles
+import './SoilMapDialog.css';
 
 const SoilPopup = ({isOpenButton}) => {
     const [isOpen, setIsOpen] = useState(isOpenButton);

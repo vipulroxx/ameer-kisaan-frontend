@@ -112,7 +112,7 @@ const InventoryManagement = () => {
   };
 
   return (
-    <Box sx={{ padding: 3, backgroundColor: '#f9f9f9', borderRadius: 2, boxShadow: 3 }}>
+    <Box className="inventory-root">
       <Typography variant="h5" gutterBottom>
         Inventory Management
       </Typography>

@@ -51,10 +51,23 @@ import timeLineImg6 from '../Agricultural-crops/tomato/image (9).jpeg'
 
 import { sub } from '@tensorflow/tfjs'
 import { Upload, UploadFileSharp } from '@mui/icons-material'
+import { Pie } from 'react-chartjs-2';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
+
+const pieChartData = {
+  labels: ['Tomatoes', 'Onions', 'Carrots', 'Potatoes'],
+  datasets: [
+    {
+      label: 'Average Prices',
+      data: [3000, 2500, 2000, 1500], // Example data
+      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50'],
+      hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50'],
+    },
+  ],
+};
 
 const CropDetails = ({ crop, onClose }) => {
   const [openDialog, setOpenDialog] = useState(false)
@@ -549,14 +562,6 @@ const CropDetails = ({ crop, onClose }) => {
     setSnackbarOpen(true);
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
-  };
-
-  const handleCloseAnalysis = () => {
-    setAnalysisOpen(false);
-  };
-
   if (!cropInfo) {
     return (
       <Paper style={{ padding: '20px', backgroundColor: '#ffffff' }}>
@@ -568,154 +573,80 @@ const CropDetails = ({ crop, onClose }) => {
   }
 
   return (
-    <Paper
-      style={{
-        padding: '20px',
-        maxHeight: '600px',
-        overflowY: 'auto',
-        backgroundColor,
-        width: '80%',
-        margin: '0 auto'
-      }}
-    >
+    <Paper className="crop-details-container">
       <PhotoViewer />
-      <Typography
-        variant='h4'
-        style={{ marginBottom: '20px', fontWeight: 'bold', color: '#0d47a1' }}
-      >
+      <Typography variant="h4" className="crop-details-header">
         {cropInfo.icon} {crop}
       </Typography>
-      <Typography
-        variant='h6'
-        style={{ marginBottom: '20px', color: '#424242' }}
-      >
+      <Typography variant="h6" className="crop-details-description">
         {cropInfo.description}
       </Typography>
-      <Typography
-        variant='h5'
-        style={{ marginBottom: '10px', color: '#388e3c' }}
-      >
+      <Typography variant="h5" className="crop-details-benefits">
         Benefits:
       </Typography>
-      <ul style={{ marginLeft: '20px' }}>
-        {cropInfo.benefits.map(benefit => (
-          <li key={benefit} style={{ fontSize: '18px' }}>
-            {benefit}
-          </li>
+      <ul className="crop-details-list">
+        {cropInfo.benefits.map((benefit) => (
+          <li key={benefit}>{benefit}</li>
         ))}
       </ul>
-      <Typography
-        variant='h5'
-        style={{ marginBottom: '10px', color: '#388e3c' }}
-      >
+      <Typography variant="h5" className="crop-details-tips">
         Tips:
       </Typography>
-      <ul style={{ marginLeft: '20px' }}>
-        {cropInfo.tips.map(tip => (
-          <li key={tip} style={{ fontSize: '18px' }}>
-            {tip}
-          </li>
+      <ul className="crop-details-list">
+        {cropInfo.tips.map((tip) => (
+          <li key={tip}>{tip}</li>
         ))}
       </ul>
-      <Typography
-        variant='h5'
-        style={{ marginBottom: '10px', color: '#388e3c' }}
-      >
+      <Typography variant="h5" className="crop-details-tips">
         Subcategories:
       </Typography>
-      <Grid container spacing={1}>
-        {Object.keys(cropInfo.subcategories).map(subcategory => (
-          <Grid item xs={12} sm={6} md={4} key={subcategory}>
-            <Card elevation={3} style={{ marginBottom: '16px' }}>
-              <CardContent>
-                <Typography variant='h6' style={{ fontWeight: 'bold' }}>
-                  {subcategory}
-                </Typography>
-                {/* Image for the Subcategory */}
-                {cropInfo.subcategories[subcategory].image && (
-                  <img
-                    src={cropInfo.subcategories[subcategory].image}
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      maxHeight: '150px',
-                      marginBottom: '10px'
-                    }}
-                  />
-                )}{' '}
-                <Typography variant='h6' style={{ fontWeight: 'bold' }}>
-                  {subcategory}
-                </Typography>
-                <Typography variant='body1'>
-                  <strong>Soil:</strong>{' '}
-                  {cropInfo.subcategories[subcategory].soil}
-                </Typography>
-                <Typography variant='body1'>
-                  <strong>Watering:</strong>{' '}
-                  {cropInfo.subcategories[subcategory].watering}
-                </Typography>
-                <Typography variant='body1'>
-                  <strong>Sunlight:</strong>{' '}
-                  {cropInfo.subcategories[subcategory].sunlight}
-                </Typography>
-                <Typography variant='body1'>
-                  <strong>Notes:</strong>{' '}
-                  {cropInfo.subcategories[subcategory].notes}
-                </Typography>
-              </CardContent>
-
-              {/* Action Forms */}
-              <ActionForm
-                open={dialogState.analyze}
-                onClose={() =>
-                  setDialogState(prev => ({ ...prev, analyze: false }))
-                }
-                onSubmit={handleAnalyze}
-                actionType='Analysis'
-              />
-              <ActionForm
-                open={dialogState.fix}
-                onClose={() =>
-                  setDialogState(prev => ({ ...prev, fix: false }))
-                }
-                onSubmit={handleFixIssue}
-                actionType='Issue Fix'
-              />
-              <CardActions
-                style={{ display: 'flex', justifyContent: 'space-between' }}
-              >
-                <div>
-                  <IconButton
-                    title='Request Help'
-                    onClick={() => handleRequestHelp(subcategory)}
-                  >
-                    <FaQuestionCircle />
-                  </IconButton>
-                  <IconButton title='View Images' onClick={handleViewImages}>
-                    <FaImage />
-                  </IconButton>
-                </div>
-                <div>
-                  <IconButton
-                    color='secondary'
-                    onClick={() =>
-                      setDialogState(prev => ({ ...prev, analyze: true }))
-                    }
-                  >
-                    <FaInfoCircle />
-                  </IconButton>
-                  <IconButton
-                    color='error'
-                    onClick={() => handleMarkAsBad(subcategory)}
-                  >
-                    <FaTrash />
-                  </IconButton>
-                </div>
-              </CardActions>
-            </Card>
-          </Grid>
+      <div className="crop-details-grid">
+        {Object.keys(cropInfo.subcategories).map((subcategory) => (
+          <Card className="crop-details-card" key={subcategory}>
+            <CardContent className="crop-details-card-content">
+              <Typography variant="h6" style={{ fontWeight: 'bold' }}>
+                {subcategory}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Soil:</strong> {cropInfo.subcategories[subcategory].soil}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Watering:</strong> {cropInfo.subcategories[subcategory].watering}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Sunlight:</strong> {cropInfo.subcategories[subcategory].sunlight}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Notes:</strong> {cropInfo.subcategories[subcategory].notes}
+              </Typography>
+            </CardContent>
+            <CardActions className="crop-details-card-actions">
+              <IconButton title="Request Help" onClick={() => handleRequestHelp(subcategory)}>
+                <FaQuestionCircle />
+              </IconButton>
+              <IconButton title="View Images" onClick={handleViewImages}>
+                <FaImage />
+              </IconButton>
+            </CardActions>
+          </Card>
         ))}
-      </Grid>
+      </div>
+
+      <Card className="chart-container">
+        <CardContent>
+          <Typography className="chart-title" variant="h5">
+            Pie Chart of Average Prices
+          </Typography>
+          <Pie
+            data={pieChartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false, // Allow the chart to resize dynamically
+            }}
+            className="chart"
+          />
+        </CardContent>
+      </Card>
 
       <ReportDialog
         open={openReportDialog}
