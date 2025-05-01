@@ -1,0 +1,81 @@
+.chart-container {
+  display: flex; /* Use flexbox for alignment */
+  flex-direction: column; /* Stack content vertically */
+  align-items: center; /* Center align the chart */
+  justify-content: center; /* Center align the chart */
+  width: 100%;
+  height: auto;
+  max-width: 800px; /* Maximum width for larger screens */
+  margin: 0 auto;
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chart {
+  width: 100%;
+  height: auto;
+  max-height: 400px; /* Prevent charts from being too tall */
+}
+
+.chart-title {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  color: #333;
+  word-wrap: break-word; /* Ensure long text wraps */
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.icon-container .question-icon {
+  margin-left: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .chart-container {
+    padding: 12px;
+  }
+
+  .chart {
+    max-width: 500px; /* Adjust chart width for tablets */
+    max-height: 300px; /* Adjust chart height for tablets */
+  }
+
+  .chart-title {
+    font-size: 1.2rem;
+  }
+
+  .icon-container .question-icon {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .chart-container {
+    padding: 8px;
+    flex-direction: column; /* Ensure content stacks vertically */
+  }
+
+  .chart {
+    max-width: 350px; /* Adjust chart width for small screens */
+    max-height: 250px; /* Adjust chart height for small screens */
+  }
+
+  .chart-title {
+    font-size: 1rem;
+  }
+
+  .icon-container .question-icon {
+    font-size: 0.8rem;
+  }
+}

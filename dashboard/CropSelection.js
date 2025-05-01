@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Grid, Paper, Typography, Box } from '@mui/material';
 import { FaSeedling, FaAppleAlt, FaCarrot, FaTree, FaPepperHot, FaOilCan } from 'react-icons/fa';
 import CropDetails from '../risk_management/CropDetails.js';
-import InfoDialog from './InfoDialog'; // Import the new InfoDialog component
+import InfoDialog from './InfoDialog';
 import { Dialog, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { motion } from 'framer-motion'; // For animations
+import { motion } from 'framer-motion';
 import PhotoViewer from '../risk_management/PhotoViewer.js';
 
 const crops = [
@@ -22,7 +22,7 @@ const crops = [
 const CropSelection = () => {
   const [selectedCrop, setSelectedCrop] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [infoDialogOpen, setInfoDialogOpen] = useState(true); // State for the info dialog
+  const [infoDialogOpen, setInfoDialogOpen] = useState(true);
 
   const handleCategorySelect = (category) => {
     setSelectedCrop(category);
@@ -44,7 +44,7 @@ const CropSelection = () => {
     "Follow the care instructions provided for successful harvesting."
   ];
 
-  const videoUrl = "https://www.youtube.com/embed/example"; // Replace with your video URL
+  const videoUrl = "https://www.youtube.com/embed/example";
 
   return (
     <div>
@@ -54,16 +54,16 @@ const CropSelection = () => {
         onClose={handleInfoDialogClose} 
         title="Welcome to Crop Selection!" 
         steps={tutorialSteps} 
-        videoUrl={videoUrl} // Optional video tutorial
+        videoUrl={videoUrl}
       />
 
       <Box sx={{ padding: 2 }}>
         <Typography variant="h5" gutterBottom>Categories:</Typography>
         <Grid container spacing={2}>
           {crops.map((category) => (
-            <Grid item xs={4} sm={4} md={3} key={category.name}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={category.name}>
               <motion.div
-                whileHover={{ scale: 1.05 }} // Enlarge on hover
+                whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
                 <Paper
@@ -73,11 +73,13 @@ const CropSelection = () => {
                     cursor: 'pointer',
                     padding: '16px',
                     backgroundColor: category.color,
+                    overflow: 'hidden', // Prevent overflow
+                    wordWrap: 'break-word', // Ensure text wraps
                   }}
                   elevation={3}
                 >
-                  <div style={{ fontSize: '40px' }}>{category.icon}</div>
-                  <Typography variant="h6">{category.name}</Typography>
+                  <div style={{ fontSize: '40px', marginBottom: '8px' }}>{category.icon}</div>
+                  <Typography variant="h6" style={{ fontSize: '1rem' }}>{category.name}</Typography>
                 </Paper>
               </motion.div>
             </Grid>
