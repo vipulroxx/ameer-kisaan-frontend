@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Typography, Card, CardContent, Box } from '@mui/material';
+import { Paper, Typography, Card, CardContent, Box, Button } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Agriculture, Grain, EmojiNature } from '@mui/icons-material';
@@ -8,147 +8,184 @@ import './JharkhandDashboard.css';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const paddyData = {
-	labels: [
-		'2007-08', '2008-09', '2009-10', '2010-11', 
-		'2011-12', '2012-13', '2013-14', '2014-15', 
-		'2015-16', '2016-17', '2017-18', '2018-19', 
-		'2019-20', '2020-21'
-	],
-	datasets: [
-		{
-			label: 'Paddy Production (000 tonnes)',
-			data: [
-				3326.407, 3400.187, 1518.364, 1110.006, 
-				5614.931, 3991.222, 3637.447, 4324.456, 
-				2569.411, 4988.065, 5131.954, 2894.101, 
-				3612.588, 5123.083
-			],
-			backgroundColor: 'rgba(75, 192, 192, 0.6)',
-		},
-	],
+  labels: [
+    '2007-08', '2008-09', '2009-10', '2010-11',
+    '2011-12', '2012-13', '2013-14', '2014-15',
+    '2015-16', '2016-17', '2017-18', '2018-19',
+    '2019-20', '2020-21'
+  ],
+  datasets: [
+    {
+      label: 'Paddy Production (000 tonnes)',
+      data: [
+        3326.407, 3400.187, 1518.364, 1110.006,
+        5614.931, 3991.222, 3637.447, 4324.456,
+        2569.411, 4988.065, 5131.954, 2894.101,
+        3612.588, 5123.083
+      ],
+      backgroundColor: 'rgba(75, 192, 192, 0.6)',
+    },
+  ],
 };
 const maizeData = {
-	labels: [
-		'2007-08', '2008-09', '2009-10', '2010-11', 
-		'2011-12', '2012-13', '2013-14', '2014-15', 
-		'2016-17', '2017-18', '2018-19', '2019-20', 
-		'2020-21'
-	],
-	datasets: [
-		{
-			label: 'Maize Production (000 tonnes)',
-			data: [
-				358.245, 304.002, 217.458, 261.715, 
-				408.889, 451.693, 517.029, 384.932, 
-				578.066, 596.727, 455.314, 510.928, 
-				851.837
-			],
-			backgroundColor: 'rgba(255, 206, 86, 0.6)',
-		},
-	],
+  labels: [
+    '2007-08', '2008-09', '2009-10', '2010-11',
+    '2011-12', '2012-13', '2013-14', '2014-15',
+    '2016-17', '2017-18', '2018-19', '2019-20',
+    '2020-21'
+  ],
+  datasets: [
+    {
+      label: 'Maize Production (000 tonnes)',
+      data: [
+        358.245, 304.002, 217.458, 261.715,
+        408.889, 451.693, 517.029, 384.932,
+        578.066, 596.727, 455.314, 510.928,
+        851.837
+      ],
+      backgroundColor: 'rgba(255, 206, 86, 0.6)',
+    },
+  ],
 };
 const pulsesData = {
-	labels: [
-		'2007-08', '2008-09', '2009-10', '2010-11', 
-		'2011-12', '2012-13', '2013-14', '2014-15', 
-		'2015-16', '2016-17', '2017-18', '2018-19', 
-		'2019-20', '2020-21'
-	],
-	datasets: [
-		{
-			label: 'Pulses Production (000 tonnes)',
-			data: [
-				295.181, 280.785, 219.729, 312.422, 
-				492.250, 686.219, 578.635, 597.068, 
-				495.134, 300.141, 871.475, 735.223, 
-				814.841, 920.838
-			],
-			backgroundColor: 'rgba(153, 102, 255, 0.6)',
-		},
-	],
+  labels: [
+    '2007-08', '2008-09', '2009-10', '2010-11',
+    '2011-12', '2012-13', '2013-14', '2014-15',
+    '2015-16', '2016-17', '2017-18', '2018-19',
+    '2019-20', '2020-21'
+  ],
+  datasets: [
+    {
+      label: 'Pulses Production (000 tonnes)',
+      data: [
+        295.181, 280.785, 219.729, 312.422,
+        492.250, 686.219, 578.635, 597.068,
+        495.134, 300.141, 871.475, 735.223,
+        814.841, 920.838
+      ],
+      backgroundColor: 'rgba(153, 102, 255, 0.6)',
+    },
+  ],
 };
 const oilseedsData = {
-	labels: [
-		'2007-08', '2008-09', '2009-10', '2010-11', 
-		'2011-12', '2012-13', '2013-14', '2014-15', 
-		'2015-16', '2016-17', '2017-18', '2018-19', 
-		'2019-20', '2020-21'
-	],
-	datasets: [
-		{
-			label: 'Oilseeds Production (000 tonnes)',
-			data: [
-				68.881, 73.306, 78.875, 113.660, 
-				174.493, 197.235, 182.852, 180.458, 
-				188.448, 21.457, 297.067, 228.491, 
-				288.456, 404.762
-			],
-			backgroundColor: 'rgba(255, 99, 132, 0.6)',
-		},
-	],
+  labels: [
+    '2007-08', '2008-09', '2009-10', '2010-11',
+    '2011-12', '2012-13', '2013-14', '2014-15',
+    '2015-16', '2016-17', '2017-18', '2018-19',
+    '2019-20', '2020-21'
+  ],
+  datasets: [
+    {
+      label: 'Oilseeds Production (000 tonnes)',
+      data: [
+        68.881, 73.306, 78.875, 113.660,
+        174.493, 197.235, 182.852, 180.458,
+        188.448, 21.457, 297.067, 228.491,
+        288.456, 404.762
+      ],
+      backgroundColor: 'rgba(255, 99, 132, 0.6)',
+    },
+  ],
 };
-			
+
 // Geographical Information
 const geographicalInfo = {
-	area: '79.70 lakh ha',
-	cultivableArea: '38 lakh ha',
-	netShownArea: '25 - 26 lakh ha',
-	rainfall: '1300 mm (Normal)',
-	numberOfDistricts: 24,
-	numberOfBlocks: 263,
-	majorCrops: ['Paddy', 'Wheat', 'Maize', 'Pulses', 'Oilseeds', 'Horticultural Crops'],
-	minorCrops: ['Maize', 'Arhar', 'Urad', 'Moong', 'Wheat', 'Gram', 'Mustard'],
+  area: '79.70 lakh ha',
+  cultivableArea: '38 lakh ha',
+  netShownArea: '25 - 26 lakh ha',
+  rainfall: '1300 mm (Normal)',
+  numberOfDistricts: 24,
+  numberOfBlocks: 263,
+  majorCrops: ['Paddy', 'Wheat', 'Maize', 'Pulses', 'Oilseeds', 'Horticultural Crops'],
+  minorCrops: ['Maize', 'Arhar', 'Urad', 'Moong', 'Wheat', 'Gram', 'Mustard'],
 };
 
 // Constraints data
 const constraints = [
-	'Run-off loss and soil erosion',
-	'Low level of irrigation',
-	'Mono-cropping',
-	'Cultivation of wasteland',
-	'Lack of organized marketing facilities',
-	'Soil acidity and poor soil condition',
-	'Increase in kharif area/area expansion - Coverage of fallow land, increase in pulses, oilseed and coarse cereals area',
-	'Inadequate seed',
-	'Low farm mechanization',
-	'Low credit/insurance',
-	'Poor infrastructure for post-harvest and value addition',
+  'Run-off loss and soil erosion',
+  'Low level of irrigation',
+  'Mono-cropping',
+  'Cultivation of wasteland',
+  'Lack of organized marketing facilities',
+  'Soil acidity and poor soil condition',
+  'Increase in kharif area/area expansion - Coverage of fallow land, increase in pulses, oilseed and coarse cereals area',
+  'Inadequate seed',
+  'Low farm mechanization',
+  'Low credit/insurance',
+  'Poor infrastructure for post-harvest and value addition',
 ];
 
 // Achievements data
 const achievements = [
-	'Increase in paddy productivity (from 20 q/ha to 30 q/ha)',
-	'Increase in paddy production (32 lakh ton to 44 lakh ton)',
-	'Increase in area under pulses from 4.66 lakh ha to 5.90 lakh ha',
-	'Increase in production under pulses from 4.12 lakh ton to 5.90 lt',
-	'Increase in Rabi area from 5.92 lakh ha to 6.12 lakh ha',
-	'Promotion of notified hybrid – 60000 qtl paddy seed distributed',
-	'Construction of 6000 MT godown in each district',
-	'Agriculture Technology Information Center (ATIC) in each block',
-	'Participation of 2.400 lakh farmers of Jharkhand in Krishi Mahotsov ratha yatra from 27 May - 12 June, 2015',
-	'Massive Seed treatment campaign in each block and panchayat',
-	'Renovation of Govt. tank - 861 no.',
-	'Construction of new pond and check dam - 1982 no.',
+  'Increase in paddy productivity (from 20 q/ha to 30 q/ha)',
+  'Increase in paddy production (32 lakh ton to 44 lakh ton)',
+  'Increase in area under pulses from 4.66 lakh ha to 5.90 lakh ha',
+  'Increase in production under pulses from 4.12 lakh ton to 5.90 lt',
+  'Increase in Rabi area from 5.92 lakh ha to 6.12 lakh ha',
+  'Promotion of notified hybrid – 60000 qtl paddy seed distributed',
+  'Construction of 6000 MT godown in each district',
+  'Agriculture Technology Information Center (ATIC) in each block',
+  'Participation of 2.400 lakh farmers of Jharkhand in Krishi Mahotsov ratha yatra from 27 May - 12 June, 2015',
+  'Massive Seed treatment campaign in each block and panchayat',
+  'Renovation of Govt. tank - 861 no.',
+  'Construction of new pond and check dam - 1982 no.',
 ];
 
 // Thrust Areas data
 const thrustAreas = [
-	'Soil water conservation and increase in irrigation potential',
-	'Irrigation infrastructure tie-up with other departments',
-	'Promotion of soil amendment for acidic soil and Soil Health Card',
-	'Increase in Rabi area and promotion of solar power',
-	'Area expansion in Kharif - coverage of fallow land',
-	'Promotion of oilseed and pulses',
-	'Enhancement of area under cashew production',
-	'Rainfed horticulture and quality seed production and distribution',
-	'Seed production in seed multiplication farms and seed villages',
-	'Promotion of SRI and hybrid rice program',
-	'Promotion of Kisan Credit Card to farmers',
-	'Coverage under National Agriculture Insurance Scheme',
-	'Farm mechanization (Equipment bank for custom hiring)',
+  'Soil water conservation and increase in irrigation potential',
+  'Irrigation infrastructure tie-up with other departments',
+  'Promotion of soil amendment for acidic soil and Soil Health Card',
+  'Increase in Rabi area and promotion of solar power',
+  'Area expansion in Kharif - coverage of fallow land',
+  'Promotion of oilseed and pulses',
+  'Enhancement of area under cashew production',
+  'Rainfed horticulture and quality seed production and distribution',
+  'Seed production in seed multiplication farms and seed villages',
+  'Promotion of SRI and hybrid rice program',
+  'Promotion of Kisan Credit Card to farmers',
+  'Coverage under National Agriculture Insurance Scheme',
+  'Farm mechanization (Equipment bank for custom hiring)',
 ];
 
+const SoilTypeComponent = () => {
+  return (
+    <Card elevation={3} className="dashboard-card">
+      <CardContent>
+        <Typography variant="h6" align="center">
+          Soil Types
+        </Typography>
+        <Typography variant="body1">
+          Information about soil types in Jharkhand will be displayed here.
+        </Typography>
+      </CardContent>
+    </Card>
+  );
+};
+
 const JharkhandDashboard = () => {
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Production Over Years',
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Production (000 tonnes)'
+        }
+      },
+    },
+  };
+
   return (
     <Box className="dashboard-root">
       <Typography variant="h4" className="dashboard-title">
@@ -157,19 +194,19 @@ const JharkhandDashboard = () => {
       <Box className="dashboard-grid">
         <Paper elevation={3} className="dashboard-paper">
           <Typography variant="h6">Paddy Production Over Years</Typography>
-          <Bar data={paddyData} options={{ scales: { y: { beginAtZero: true } } }} />
+          <Bar data={paddyData} options={chartOptions} />
         </Paper>
         <Paper elevation={3} className="dashboard-paper">
           <Typography variant="h6">Maize Production Over Years</Typography>
-          <Bar data={maizeData} options={{ scales: { y: { beginAtZero: true } } }} />
+          <Bar data={maizeData} options={chartOptions} />
         </Paper>
         <Paper elevation={3} className="dashboard-paper">
           <Typography variant="h6">Pulses Production Over Years</Typography>
-          <Bar data={pulsesData} options={{ scales: { y: { beginAtZero: true } } }} />
+          <Bar data={pulsesData} options={chartOptions} />
         </Paper>
         <Paper elevation={3} className="dashboard-paper">
           <Typography variant="h6">Oilseeds Production Over Years</Typography>
-          <Bar data={oilseedsData} options={{ scales: { y: { beginAtZero: true } } }} />
+          <Bar data={oilseedsData} options={chartOptions} />
         </Paper>
         <Card elevation={3} className="dashboard-card">
           <CardContent>
@@ -207,6 +244,10 @@ const JharkhandDashboard = () => {
             ))}
           </CardContent>
         </Card>
+        <SoilTypeComponent />
+        <Button variant="contained" color="primary">
+          Show Soil Types
+        </Button>
       </Box>
     </Box>
   );

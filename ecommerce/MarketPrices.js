@@ -4,7 +4,7 @@ import { Box, Typography, Button, Paper, Grid, Snackbar, Alert, TextField } from
 import { FaShoppingCart } from 'react-icons/fa';
 
 // New inventory data
-const initialInventoryData = [
+export const initialInventoryData = [  // Exporting initialInventoryData
   { id: 1, productName: 'Rice', variety: 'Basmati', quantity: 1000, price: 1800, harvestDate: '2023-10-01', qualityGrade: 'A', packagingType: 'Bag' },
   { id: 2, productName: 'Wheat', variety: 'Durum', quantity: 1500, price: 1500, harvestDate: '2023-10-15', qualityGrade: 'B', packagingType: 'Bulk' },
   { id: 3, productName: 'Corn', variety: 'Sweet', quantity: 800, price: 2000, harvestDate: '2023-09-25', qualityGrade: 'A', packagingType: 'Bag' },
@@ -36,13 +36,15 @@ const initialInventoryData = [
   { id: 29, productName: 'Fertilizer Spreader', variety: 'Manual', quantity: 10, price: 3000, harvestDate: '2023-09-05', qualityGrade: 'New', packagingType: 'N/A' },
   { id: 30, productName: 'Irrigation Hose', variety: 'Flexible', quantity: 100, price: 500, harvestDate: '2023-09-01', qualityGrade: 'A', packagingType: 'Roll' },
 ];
+
 const MarketPrices = () => {
   const [marketItems, setMarketItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [itemQuantities, setItemQuantities] = useState({}); // Track quantities for each item
 
-  const handleAddToMarket = (item) => {
-    setMarketItems((prev) => [...prev, item]);
+  const handleAddToMarket = (item, quantity) => {
+    setMarketItems((prev) => [...prev, { ...item, quantity: parseInt(quantity, 10) || 1 }]); // Ensure quantity is a number
     setSnackbarOpen(true);
   };
 
@@ -57,7 +59,11 @@ const MarketPrices = () => {
   );
 
   // Calculate the running sum
-  const totalCost = marketItems.reduce((sum, item) => sum + item.price, 0);
+  const totalCost = marketItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const handleQuantityChange = (itemId, quantity) => {
+    setItemQuantities(prev => ({ ...prev, [itemId]: quantity }));
+  };
 
   return (
     <Box sx={{ padding: 4, backgroundColor: '#fff', borderRadius: 2, boxShadow: 3 }}>
@@ -97,10 +103,19 @@ const MarketPrices = () => {
               <Typography variant="body2">{`Harvest Date: ${item.harvestDate}`}</Typography>
               <Typography variant="body2">{`Quality Grade: ${item.qualityGrade}`}</Typography>
               <Typography variant="body2">{`Packaging: ${item.packagingType}`}</Typography>
+
+              <TextField
+                label="Enter Quantity"
+                type="number"
+                defaultValue={1}
+                sx={{ width: '100%', marginTop: 1 }}
+                onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+              />
+
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => handleAddToMarket(item)}
+                onClick={() => handleAddToMarket(item, itemQuantities[item.id] || 1)} // Pass the quantity
                 sx={{ marginTop: 1 }}
               >
                 Add to Market
@@ -116,7 +131,7 @@ const MarketPrices = () => {
       <Box sx={{ maxHeight: 200, overflowY: 'auto', marginBottom: 2, padding: 1, border: '1px solid #ccc', borderRadius: 1 }}>
         {marketItems.map((item, index) => (
           <Typography key={index} variant="body2" sx={{ padding: 0.5 }}>
-            Added: {item.productName} ({item.variety}) - ₹{item.price} per unit
+            Added: {item.productName} ({item.variety}) - ₹{item.price} per unit - Quantity: {item.quantity}
           </Typography>
         ))}
       </Box>
