@@ -28,7 +28,7 @@ import CropDataCharts from '../auth/CropDataCharts';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js';
 import SoilPopup from './SoilPopup';
 import JharkhandInfo from '../auth/JharkhandInfo';
-
+import { AcUnit } from '@mui/icons-material'; 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, Legend);
 
 const cropData = [
@@ -578,14 +578,17 @@ const CropRecommendation = () => {
 
       <Grid container spacing={2} marginBottom={2}>
         <Grid item>
-          <Button variant="contained" onClick={() => setFormOpen(true)}>
+          <Button variant="contained" sx={{ marginRight: 2 }} onClick={() => setFormOpen(true)}>
             Open Crop Recommendation Form
+          </Button>
+          <Button variant="outlined" color="secondary" startIcon={<AcUnit />} onClick={() => setSoilMapOpen(true)}>
+            Show Soil Types
           </Button>
         </Grid>
         <Grid item>
-          <Button variant="outlined" color="info" onClick={() => setSoilMapOpen(true)}>
-            Show Soil Types
-          </Button>
+
+          
+          
         </Grid>
       </Grid>
       
