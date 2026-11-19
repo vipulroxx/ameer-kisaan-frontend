@@ -8,22 +8,20 @@ import {
   IconButton,
   Box,
   CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogTitle
 } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
-import { AppRegistrationRounded } from '@mui/icons-material';
-import Registration from './Registration';
+import JharkhandInfo from './JharkhandInfo';
 
-const Login = ({ onLogin }) => {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+const Login = ({ onLogin, error, toggleForm }) => {
+  const [credentials, setCredentials] = useState({
+    email: '',
+    password: ''
+  });
   const [loading, setLoading] = useState(false);
-  const [showRegistration, setShowRegistration] = useState(false);
 
   const handleInputChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -32,16 +30,8 @@ const Login = ({ onLogin }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    console.log('Login Credentials: ', credentials);
-    onLogin(credentials).finally(() => setLoading(false));
-  };
-
-  const handleRegisterClick = () => {
-    setShowRegistration(true);
-  };
-
-  const handleCloseRegistration = () => {
-    setShowRegistration(false);
+    // onLogin returns a promise, but in App.js it's not awaited, so we handle loading state here
+    Promise.resolve(onLogin(credentials)).finally(() => setLoading(false));
   };
 
   return (
@@ -59,6 +49,9 @@ const Login = ({ onLogin }) => {
         }}
       >
         <Typography variant="h5" gutterBottom align="center">Login</Typography>
+        {error && (
+          <Typography color="error" align="center" sx={{ mb: 1 }}>{error}</Typography>
+        )}
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             {[
@@ -103,10 +96,10 @@ const Login = ({ onLogin }) => {
               </Grid>
             ))}
             <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
+              <Button 
+                variant="contained" 
+                color="primary" 
+                type="submit" 
                 fullWidth
                 disabled={loading}
                 sx={{
@@ -123,16 +116,14 @@ const Login = ({ onLogin }) => {
           </Grid>
         </form>
         <Typography variant="body2" align="center" sx={{ marginTop: 2 }}>
-          <Button color="primary" onClick={() => alert('Contact admin')}>Forgot Password?</Button>
+          <Button color="primary" onClick={() => {alert('Contact admin')}}>Forgot Password?</Button>
         </Typography>
-        <Typography variant="body2" align="center">Register Using or</Typography>
+        <Typography variant="body2" align="center" sx={{ marginTop: 1 }}>
+          Don't have an account?{' '}
+          <Button color="secondary" onClick={toggleForm}>Register</Button>
+        </Typography>
+        <Typography variant="body2" align="center">Login using</Typography>
         <Box display="flex" justifyContent="center" marginTop={1}>
-          <IconButton
-            sx={{ margin: 1, backgroundColor: '#f5f5f5', '&:hover': { backgroundColor: '#e0e0e0' } }}
-            onClick={handleRegisterClick}
-          >
-            <AppRegistrationRounded />
-          </IconButton>
           <IconButton sx={{ margin: 1, backgroundColor: '#f5f5f5', '&:hover': { backgroundColor: '#e0e0e0' } }}>
             <GoogleIcon />
           </IconButton>
@@ -141,17 +132,6 @@ const Login = ({ onLogin }) => {
           </IconButton>
         </Box>
       </Box>
-
-      {/* Registration Dialog */}
-      <Dialog open={showRegistration} onClose={handleCloseRegistration} fullWidth maxWidth="md">
-        <DialogTitle>Register as a Farmer</DialogTitle>
-        <DialogContent>
-          <Registration onRegister={(data) => {
-            console.log('Registered user:', data);
-            handleCloseRegistration();
-          }} />
-        </DialogContent>
-      </Dialog>
     </Box>
   );
 };
