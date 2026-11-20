@@ -26,7 +26,7 @@ const NavigationBar = ({ appName, onMenuSelect, isAuthenticated, onHomeClick }) 
           <FaHome 
             onClick={onHomeClick} 
             style={{ 
-              color: 'gold', 
+              color: theme.palette.secondary.main, 
               transition: '0.3s', 
               fontSize: '1.5rem', 
               cursor: 'pointer' 
@@ -35,7 +35,7 @@ const NavigationBar = ({ appName, onMenuSelect, isAuthenticated, onHomeClick }) 
 
           {/* App Name */}
           <Box display="flex" alignItems="center" sx={{ flexGrow: 1, justifyContent: 'center' }}>
-            <Typography variant="h4" style={{ color: 'gold', display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" style={{ color: theme.palette.secondary.main, display: 'flex', alignItems: 'center' }}>
               {appName.toUpperCase()} 
             </Typography>
           </Box>
@@ -47,7 +47,7 @@ const NavigationBar = ({ appName, onMenuSelect, isAuthenticated, onHomeClick }) 
                 <FaUserCircle 
                   onClick={handleMenuOpen} 
                   style={{ 
-                    color: 'gold', 
+                    color: theme.palette.secondary.main, 
                     transition: '0.3s', 
                     fontSize: '1.5rem', 
                     cursor: 'pointer' 

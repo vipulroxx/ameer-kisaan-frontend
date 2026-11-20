@@ -4,6 +4,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as mobilenet from '@tensorflow-models/mobilenet';
 import '@tensorflow/tfjs-backend-webgl';
 import * as tf from '@tensorflow/tfjs';
+import { visionApi } from '../services/api';
 
 const PestCard = ({ title, description, summary, backgroundColor }) => (
   <Accordion style={{ backgroundColor }}>
@@ -99,6 +100,22 @@ const PestDetection = ({ onClose }) => {
   const [predictions, setPredictions] = useState([]);
   const [model, setModel] = useState(null);
   const [imgSrc, setImgSrc] = useState('');
+  const [serverResult, setServerResult] = useState(null);
+  const [serverBusy, setServerBusy] = useState(false);
+
+  // Ameer Kisaan's own crop classifier (trained on the app's crop photo set), run on the server.
+  const identifyOnServer = async () => {
+    if (!file) return;
+    setServerBusy(true);
+    try {
+      const res = await visionApi.identifyCrop(file);
+      setServerResult({ predictions: res.predictions });
+    } catch (e) {
+      setServerResult({ error: e.message });
+    } finally {
+      setServerBusy(false);
+    }
+  };
 
   useEffect(() => {
     const loadModel = async () => {
@@ -160,6 +177,15 @@ const PestDetection = ({ onClose }) => {
         >
           Detect
         </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={identifyOnServer}
+          disabled={!file || serverBusy}
+          style={{ marginLeft: 8 }}
+        >
+          {serverBusy ? 'Identifying...' : 'Identify crop (Ameer Kisaan model)'}
+        </Button>
       </Box>
 
       {imgSrc && (
@@ -189,6 +215,21 @@ const PestDetection = ({ onClose }) => {
             </CardContent>
           </Card>
         </Box>
+      )}
+
+      {serverResult && (
+        <Card style={{ marginBottom: 20 }}>
+          <CardContent>
+            <Typography variant="h6">Crop identification</Typography>
+            {serverResult.error ? (
+              <Typography color="error">{serverResult.error}</Typography>
+            ) : (
+              serverResult.predictions.map((p) => (
+                <Typography key={p.label}>{p.label}: {Math.round(p.probability * 100)}%</Typography>
+              ))
+            )}
+          </CardContent>
+        </Card>
       )}
 
       <Typography variant="h5" style={styles.categoryTitle}>Rice Pests</Typography>

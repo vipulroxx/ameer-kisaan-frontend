@@ -63,7 +63,8 @@ const Login = ({ onLogin, error, toggleForm }) => {
                   <TextField
                     name={field.name}
                     label={field.label}
-                    type={field.name === 'password' ? 'password' : 'text'}
+                    type={field.name === 'password' ? 'password' : 'email'}
+                    autoComplete={field.name === 'password' ? 'current-password' : 'username'}
                     fullWidth
                     margin="normal"
                     variant="outlined"
@@ -82,7 +83,7 @@ const Login = ({ onLogin, error, toggleForm }) => {
                         },
                         '&.Mui-focused': {
                           borderColor: 'primary.main',
-                          boxShadow: '0 0 5px rgba(0, 0, 255, 0.5)',
+                          boxShadow: '0 0 5px rgba(31, 77, 43, 0.4)',
                         },
                       },
                     }}
