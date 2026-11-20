@@ -17,6 +17,7 @@ const Registration = ({ onRegister, error, toggleForm }) => {
   });
 
   const [fieldErrors, setFieldErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   const cropOptions = [
     "Wheat", "Rice", "Maize", "Barley", "Cotton", "Sugarcane", "Soybean", "Mustard", "Groundnut",
@@ -37,11 +38,6 @@ const Registration = ({ onRegister, error, toggleForm }) => {
     farmId: "6-12 digits, optionally prefixed by up to 4 uppercase letters. Example: FARM123456 or 3252626. Avoid 123456 or ABCDEF."
   };
 
-  const defaultValues = {
-    aadharId: "1234-5678-9087",
-    panCardNumber: "ABCDE1234F",
-    farmId: "FARM239655"
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,7 +45,7 @@ const Registration = ({ onRegister, error, toggleForm }) => {
 
     // Validate on change
     if (regexPatterns[name]) {
-      if (!regexPatterns[name].test(value)) {
+      if (value && !regexPatterns[name].test(value)) {
         setFieldErrors((prev) => ({ ...prev, [name]: true }));
       } else {
         setFieldErrors((prev) => ({ ...prev, [name]: false }));
@@ -62,13 +58,17 @@ const Registration = ({ onRegister, error, toggleForm }) => {
     let errors = {};
     // Validate all regex fields before submit
     Object.keys(regexPatterns).forEach((field) => {
-      if (!regexPatterns[field].test(userData[field])) {
+      if (userData[field] && !regexPatterns[field].test(userData[field])) {
         errors[field] = true;
       }
     });
     setFieldErrors(errors);
     if (Object.keys(errors).length === 0) {
-      onRegister(userData);
+      // Optional identifiers are sent as null when left blank.
+      const payload = { ...userData };
+      ['aadharId', 'panCardNumber', 'farmId'].forEach((f) => { if (!payload[f]) payload[f] = null; });
+      setSubmitting(true);
+      Promise.resolve(onRegister(payload)).finally(() => setSubmitting(false));
     }
   };
 
@@ -129,6 +129,8 @@ const Registration = ({ onRegister, error, toggleForm }) => {
               onChange={handleInputChange}
               required
               type="password"
+              autoComplete="new-password"
+              helperText="At least 10 characters, with letters and numbers."
             />
           </Grid>
           {/* Aadhar ID */}
@@ -142,11 +144,9 @@ const Registration = ({ onRegister, error, toggleForm }) => {
                 helperText={
                   fieldErrors.aadharId
                     ? "Invalid format or repeated digits. Example: 1234-5678-9087"
-                    : "Format: XXXX-XXXX-XXXX (e.g., 1234-5678-9087)"
+                    : "Optional. Stored encrypted and only ever shown masked. Format: XXXX-XXXX-XXXX"
                 }
                 error={!!fieldErrors.aadharId}
-                inputProps={{ pattern: "^(?!.*(\\d)\\1{3})\\d{4}-\\d{4}-\\d{4}$", defaultValue: defaultValues.aadharId }}
-                required
                 fullWidth
                 margin="normal"
               />
@@ -168,11 +168,9 @@ const Registration = ({ onRegister, error, toggleForm }) => {
                 helperText={
                   fieldErrors.panCardNumber
                     ? "Invalid format or sequence. Example: ABCDE1234F"
-                    : "Format: AAAAA9999A (e.g., ABCDE1234F)"
+                    : "Optional. Stored encrypted and only ever shown masked. Format: AAAAA9999A"
                 }
                 error={!!fieldErrors.panCardNumber}
-                inputProps={{ pattern: "^(?!.*(ABCDE|1234))[A-Z]{5}[0-9]{4}[A-Z]{1}$", defaultValue: defaultValues.panCardNumber }}
-                required
                 fullWidth
                 margin="normal"
               />
@@ -194,11 +192,9 @@ const Registration = ({ onRegister, error, toggleForm }) => {
                 helperText={
                   fieldErrors.farmId
                     ? "Invalid format or sequence. Example: FARM239655"
-                    : "Format: FARM123456 or 3252626"
+                    : "Optional. Format: FARM123456 or 3252626"
                 }
                 error={!!fieldErrors.farmId}
-                inputProps={{ pattern: "^(?!.*(123456|ABCDEF))[A-Z]{0,4}\\d{6,12}$", defaultValue: defaultValues.farmId }}
-                required
                 fullWidth
                 margin="normal"
               />
@@ -239,7 +235,9 @@ const Registration = ({ onRegister, error, toggleForm }) => {
           </Grid>
           {/* Submit */}
           <Grid item xs={12}>
-            <Button variant="contained" color="primary" type="submit">Submit</Button>
+            <Button variant="contained" color="primary" type="submit" disabled={submitting}>
+              {submitting ? 'Creating account...' : 'Submit'}
+            </Button>
           </Grid>
           {/* Toggle to Login */}
           <Grid item xs={12}>

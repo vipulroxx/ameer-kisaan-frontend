@@ -285,7 +285,7 @@ const WeatherDashboard = () => {
       // Check if the line contains specific keywords and format accordingly
       if (line.includes("This")) {
         return (
-          <Typography key={index} variant="body1" fontWeight="bold" color="blue">
+          <Typography key={index} variant="body1" fontWeight="bold" color="primary">
             {line}
           </Typography>
         );

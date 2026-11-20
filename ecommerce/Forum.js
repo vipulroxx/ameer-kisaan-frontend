@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -13,331 +13,210 @@ import {
   MenuItem,
   Avatar,
   Collapse,
-  Grid,
-  Paper,
-  Snackbar,
   Alert,
-  ImageList,
-  ImageListItem,
+  CircularProgress,
 } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonIcon from '@mui/icons-material/Person';
 import ReplyIcon from '@mui/icons-material/Reply';
-import { FaShoppingCart } from 'react-icons/fa';
-import { initialInventoryData } from './MarketPrices';
-import GooglePayButton from '@google-pay/button-react'; // Import Google Pay button
+import { forumApi, getCurrentUser, onSessionChange } from '../services/api';
 
 const Forum = () => {
-  const [comments, setComments] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [cursor, setCursor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [commentText, setCommentText] = useState('');
+  const [editingId, setEditingId] = useState(null);
   const [replyText, setReplyText] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedCommentId, setSelectedCommentId] = useState(null);
+  const [selected, setSelected] = useState(null);
   const [expanded, setExpanded] = useState(null);
-  const [marketItems, setMarketItems] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [itemQuantities, setItemQuantities] = useState({});
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [me, setMe] = useState(getCurrentUser());
 
-  useEffect(() => {
-    // Load market items from local storage on component mount
-    const storedMarketItems = localStorage.getItem('marketItems');
-    if (storedMarketItems) {
-      setMarketItems(JSON.parse(storedMarketItems));
-    } else {
-      setMarketItems([]); // Initialize with an empty array
+  useEffect(() => onSessionChange((u) => setMe(u)), []);
+
+  const load = useCallback(async (next) => {
+    setLoading(true);
+    try {
+      const page = await forumApi.list(next);
+      setPosts((prev) => {
+        if (next) return [...prev, ...page.items];
+        // Keep posts created while this page was loading, so a slow load cannot drop them.
+        const ids = new Set(page.items.map((p) => p.id));
+        return [...prev.filter((p) => p.local && !ids.has(p.id)), ...page.items];
+      });
+      setCursor(page.nextCursor);
+      setError('');
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    // Save market items to local storage whenever it changes
-    localStorage.setItem('marketItems', JSON.stringify(marketItems));
-  }, [marketItems]);
+  useEffect(() => { load(); }, [load]);
 
-  const handleAddToMarket = (item, quantity) => {
-    setMarketItems((prev) => {
-      const existingItemIndex = prev.findIndex((i) => i.id === item.id);
-      if (existingItemIndex > -1) {
-        const updatedItems = [...prev];
-        updatedItems[existingItemIndex].quantity = parseInt(quantity, 10) || 1;
-        return updatedItems;
-      } else {
-        return [...prev, { ...item, quantity: parseInt(quantity, 10) || 1 }];
-      }
-    });
-    setSnackbarOpen(true);
-  };
+  const replacePost = (updated) => setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
-  const filteredItems = initialInventoryData.filter(item =>
-    item.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.variety.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.packagingType.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalCost = marketItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const handleQuantityChange = (itemId, quantity) => {
-    setItemQuantities(prev => ({ ...prev, [itemId]: quantity }));
+  const run = async (fn) => {
+    try {
+      await fn();
+      setError('');
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
-    if (commentText.trim()) {
-      const newComment = {
-        id: Date.now(),
-        text: commentText,
-        likes: 0,
-        user: { username: 'User123' }, // Placeholder for username
-        replies: [],
-      };
-      setComments((prev) => [...prev, newComment]);
+    const text = commentText.trim();
+    if (!text) return;
+    run(async () => {
+      if (editingId) {
+        replacePost(await forumApi.edit(editingId, text));
+        setEditingId(null);
+      } else {
+        const post = await forumApi.create(text);
+        setPosts((prev) => [{ ...post, local: true }, ...prev]);
+      }
       setCommentText('');
-    }
+    });
   };
 
-  const handleReplySubmit = (e, id) => {
+  const handleReplySubmit = (e, post) => {
     e.preventDefault();
-    if (replyText.trim()) {
-      const newReply = {
-        id: Date.now(),
-        text: replyText,
-        user: { username: 'User123' }, // Placeholder for username
-      };
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment.id === id ? { ...comment, replies: [...comment.replies, newReply] } : comment
-        )
-      );
+    const text = replyText.trim();
+    if (!text) return;
+    run(async () => {
+      const reply = await forumApi.reply(post.id, text);
+      replacePost({ ...post, replyCount: post.replyCount + 1, replies: [...post.replies, reply] });
       setReplyText('');
-      setExpanded(null);
-    }
+    });
   };
 
-  const handleLike = (id) => {
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === id ? { ...comment, likes: comment.likes + 1 } : comment
-      )
-    );
+  const toggleLike = (post) => run(async () => {
+    replacePost(post.likedByMe ? await forumApi.unlike(post.id) : await forumApi.like(post.id));
+  });
+
+  const handleEdit = () => {
+    setCommentText(selected.text);
+    setEditingId(selected.id);
+    closeMenu();
   };
 
-  const handleEdit = (id) => {
-    const commentToEdit = comments.find((comment) => comment.id === id);
-    setCommentText(commentToEdit.text);
-    setComments((prev) => prev.filter((comment) => comment.id !== id));
-    handleCloseMenu();
+  const handleDelete = () => {
+    const post = selected;
+    closeMenu();
+    run(async () => {
+      await forumApi.remove(post.id);
+      setPosts((prev) => prev.filter((p) => p.id !== post.id));
+    });
   };
 
-  const handleDelete = (id) => {
-    setComments((prev) => prev.filter((comment) => comment.id !== id));
-    handleCloseMenu();
-  };
-
-  const handleCloseMenu = () => {
+  const closeMenu = () => {
     setAnchorEl(null);
-    setSelectedCommentId(null);
+    setSelected(null);
   };
 
-  const handleMenuOpen = (event, id) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedCommentId(id);
-  };
-
-  const toggleExpand = (id) => {
-    setExpanded(expanded === id ? null : id);
-  };
-
-  const handlePayment = (upiId) => {
-    // In a real application, you would integrate with a payment gateway here
-    // This is a simplified example
-    console.log(`Payment initiated via UPI: ${upiId} for ₹${totalCost}`);
-    // Simulate a successful payment
-    setTimeout(() => {
-      setPaymentSuccess(true);
-      setMarketItems([]); // Clear the cart after successful payment
-      localStorage.removeItem('marketItems'); // Clear local storage
-    }, 2000);
-  };
-
-  const handleClearCart = () => {
-    setMarketItems([]);
-    localStorage.removeItem('marketItems');
-  };
+  const canModify = (post) => me && (post.authorId === me.id || me.role === 'admin');
 
   return (
     <Box sx={{ padding: 3, backgroundColor: '#fff', borderRadius: 2, boxShadow: 2 }}>
-      <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: 2 }}>Community Forum & Trading Market</Typography>
-      <Typography variant="body1" sx={{ marginBottom: 2 }}>Join the discussion, share your experiences, and trade items!</Typography>
+      <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: 2 }}>Community Forum</Typography>
+      <Typography variant="body1" sx={{ marginBottom: 2 }}>Join the discussion and share your experiences!</Typography>
+      {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
 
-      {/* Forum Section */}
-      <Box sx={{ marginBottom: 4 }}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>Forum</Typography>
-        <form onSubmit={handleCommentSubmit} style={{ marginBottom: '20px' }}>
-          <TextField
-            fullWidth
-            label="Add a comment"
-            variant="outlined"
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            required
-          />
-          <Button type="submit" variant="contained" color="primary" sx={{ marginTop: 1 }}>
-            Post
-          </Button>
-        </form>
+      <form onSubmit={handleCommentSubmit} style={{ marginBottom: '20px' }}>
+        <TextField
+          fullWidth
+          label={editingId ? 'Edit your post' : 'Add a comment'}
+          variant="outlined"
+          value={commentText}
+          onChange={(e) => setCommentText(e.target.value)}
+          inputProps={{ maxLength: 2000 }}
+          multiline
+          required
+        />
+        <Button type="submit" variant="contained" color="primary" sx={{ marginTop: 1 }}>
+          {editingId ? 'Save' : 'Post'}
+        </Button>
+        {editingId && (
+          <Button sx={{ marginTop: 1, ml: 1 }} onClick={() => { setEditingId(null); setCommentText(''); }}>Cancel</Button>
+        )}
+      </form>
 
-        <List sx={{ marginTop: 2 }}>
-          {comments.map((comment) => (
-            <div key={comment.id}>
-              <ListItem sx={{ display: 'flex', alignItems: 'center', padding: '10px 0' }}>
-                <Avatar sx={{ marginRight: 2 }}><PersonIcon /></Avatar>
-                <ListItemText primary={`${comment.user.username}: ${comment.text}`} />
-                <IconButton onClick={() => handleLike(comment.id)} color="primary">
-                  <ThumbUpIcon />
-                </IconButton>
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>{comment.likes}</Typography>
-                <IconButton onClick={(event) => handleMenuOpen(event, comment.id)} color="default">
+      <List sx={{ marginTop: 2 }}>
+        {posts.map((post) => (
+          <div key={post.id}>
+            <ListItem sx={{ display: 'flex', alignItems: 'center', padding: '10px 0' }}>
+              <Avatar sx={{ marginRight: 2 }}><PersonIcon /></Avatar>
+              {/* React escapes text, so user content can never inject HTML or script */}
+              <ListItemText
+                primary={`${post.authorName}: ${post.text}`}
+                secondary={`${new Date(post.createdAt).toLocaleString()}${post.editedAt ? ' (edited)' : ''}`}
+              />
+              <IconButton onClick={() => toggleLike(post)} color="primary" aria-label="like">
+                {post.likedByMe ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
+              </IconButton>
+              <Typography variant="body2" sx={{ marginLeft: 1 }}>{post.likes}</Typography>
+              {canModify(post) && (
+                <IconButton onClick={(e) => { setAnchorEl(e.currentTarget); setSelected(post); }} aria-label="more">
                   <MoreVertIcon />
                 </IconButton>
-                <IconButton onClick={() => toggleExpand(comment.id)} color="default">
-                  <ReplyIcon />
-                </IconButton>
-              </ListItem>
-              <Collapse in={expanded === comment.id} timeout="auto" unmountOnExit>
-                <Box sx={{ paddingLeft: 4 }}>
-                  <form onSubmit={(e) => handleReplySubmit(e, comment.id)} style={{ display: 'flex', marginBottom: '10px' }}>
-                    <TextField
-                      label="Reply"
-                      variant="outlined"
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      required
-                      size="small"
-                      sx={{ flexGrow: 1, marginRight: 1 }}
-                    />
-                    <Button type="submit" variant="contained" color="primary" size="small">Reply</Button>
-                  </form>
-                  {comment.replies.map((reply) => (
-                    <Box key={reply.id} sx={{ display: 'flex', alignItems: 'center', padding: '5px 0' }}>
-                      <Avatar sx={{ marginRight: 1 }}><PersonIcon /></Avatar>
-                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{reply.user.username}:</Typography>
-                      <Typography variant="body2" sx={{ marginLeft: 1 }}>{reply.text}</Typography>
-                    </Box>
-                  ))}
-                </Box>
-              </Collapse>
-            </div>
-          ))}
-        </List>
+              )}
+              <IconButton onClick={() => setExpanded(expanded === post.id ? null : post.id)} aria-label="reply">
+                <ReplyIcon />
+              </IconButton>
+              <Typography variant="body2">{post.replyCount}</Typography>
+            </ListItem>
+            <Collapse in={expanded === post.id} timeout="auto" unmountOnExit>
+              <Box sx={{ paddingLeft: 4 }}>
+                <form onSubmit={(e) => handleReplySubmit(e, post)} style={{ display: 'flex', marginBottom: '10px' }}>
+                  <TextField
+                    label="Reply"
+                    variant="outlined"
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    inputProps={{ maxLength: 2000 }}
+                    required
+                    size="small"
+                    sx={{ flexGrow: 1, marginRight: 1 }}
+                  />
+                  <Button type="submit" variant="contained" color="primary" size="small">Reply</Button>
+                </form>
+                {post.replies.map((reply) => (
+                  <Box key={reply.id} sx={{ display: 'flex', alignItems: 'center', padding: '5px 0' }}>
+                    <Avatar sx={{ marginRight: 1 }}><PersonIcon /></Avatar>
+                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{reply.authorName}:</Typography>
+                    <Typography variant="body2" sx={{ marginLeft: 1 }}>{reply.text}</Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Collapse>
+          </div>
+        ))}
+      </List>
+      {loading && <CircularProgress size={24} />}
+      {!loading && posts.length === 0 && <Typography color="text.secondary">No posts yet. Start the conversation!</Typography>}
+      {cursor && !loading && <Button onClick={() => load(cursor)}>Load more</Button>}
 
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleCloseMenu}
-        >
-          <MenuItem onClick={() => handleEdit(selectedCommentId)}>Edit</MenuItem>
-          <MenuItem onClick={() => handleDelete(selectedCommentId)}>Delete</MenuItem>
-        </Menu>
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+        {selected && me && selected.authorId === me.id && <MenuItem onClick={handleEdit}>Edit</MenuItem>}
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+      </Menu>
 
-        <Divider sx={{ margin: '20px 0' }} />
+      <Divider sx={{ margin: '20px 0' }} />
 
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Comment Sorting:</Typography>
-        <Button variant="outlined" onClick={() => setComments([...comments].sort((a, b) => b.likes - a.likes))} sx={{ marginRight: 1 }}>
-          Most Liked
-        </Button>
-        <Button variant="outlined" onClick={() => setComments([...comments].sort((a, b) => b.id - a.id))}>
-          Most Recent
-        </Button>
-      </Box>
-
-      {/* Trading Market Section */}
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 2 }}>Trading Market</Typography>
-
-        <TextField
-          label="Search Products"
-          variant="outlined"
-          fullWidth
-          sx={{ marginBottom: 3 }}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-
-        <Grid container spacing={3} sx={{ maxHeight: 400, overflowY: 'auto' }}>
-          {filteredItems.map((item) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
-              <Paper
-                sx={{
-                  padding: 2,
-                  backgroundColor: '#e3f2fd',
-                  height: '100%',
-                  transition: '0.3s',
-                  '&:hover': {
-                    boxShadow: 4,
-                    backgroundColor: '#bbdefb',
-                  },
-                }}
-              >
-                <Typography variant="h6" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
-                  {item.productName} ({item.variety})
-                </Typography>
-                <Typography variant="body2">{`Available: ${item.quantity} units`}</Typography>
-                <Typography variant="body2">{`Price: ₹${item.price} per unit`}</Typography>
-                <Typography variant="body2">{`Harvest Date: ${item.harvestDate}`}</Typography>
-                <Typography variant="body2">{`Quality Grade: ${item.qualityGrade}`}</Typography>
-                <Typography variant="body2">{`Packaging: ${item.packagingType}`}</Typography>
-
-                <TextField
-                  label="Enter Quantity"
-                  type="number"
-                  defaultValue={1}
-                  sx={{ width: '100%', marginTop: 1 }}
-                  onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                />
-
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleAddToMarket(item, itemQuantities[item.id] || 1)}
-                  sx={{ marginTop: 1 }}
-                >
-                  Add to Market
-                </Button>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-
-        <Typography variant="h5" gutterBottom sx={{ marginTop: 3, color: 'primary.main' }}>
-          Market Items <FaShoppingCart />
-        </Typography>
-        <Box sx={{ maxHeight: 200, overflowY: 'auto', marginBottom: 2, padding: 1, border: '1px solid #ccc', borderRadius: 1 }}>
-          {marketItems.map((item, index) => (
-            <Typography key={index} variant="body2" sx={{ padding: 0.5 }}>
-              {item.productName} ({item.variety}) - ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
-            </Typography>
-          ))}
-        </Box>
-
-        <Typography variant="h6" sx={{ color: 'red', fontWeight: 'bold', marginTop: 2 }}>
-          Total Cost: ₹{totalCost}
-        </Typography>
-        <Button variant="contained" color="secondary" onClick={handleClearCart} sx={{ marginTop: 2 }}>
-          Clear Cart
-        </Button>
-
-        <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleSnackbarClose}>
-          <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
-            Item added to market!
-          </Alert>
-        </Snackbar>
-      </Box>
+      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Comment Sorting:</Typography>
+      <Button variant="outlined" onClick={() => setPosts([...posts].sort((a, b) => b.likes - a.likes))} sx={{ marginRight: 1 }}>
+        Most Liked
+      </Button>
+      <Button variant="outlined" onClick={() => setPosts([...posts].sort((a, b) => b.createdAt.localeCompare(a.createdAt)))}>
+        Most Recent
+      </Button>
     </Box>
   );
 };
