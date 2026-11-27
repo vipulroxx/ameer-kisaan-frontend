@@ -164,6 +164,19 @@ export const reportsApi = {
   },
 };
 
+// Admin only: the API refuses these with 403 for everyone else.
+export const adminApi = {
+  // The cursor is "USER#<id>": unencoded, "#" would start a URL fragment and the
+  // server would get no cursor, returning the first page forever.
+  users: (cursor) => request(`/admin/users?limit=50${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`),
+  updateUser: (id, changes) => request(`/admin/users/${encodeURIComponent(id)}`, { method: 'PATCH', json: changes }),
+  reports: (status) => request(`/reports/admin?status=${encodeURIComponent(status)}`),
+  updateReport: (ownerId, id, { status, adminNote }) => request(
+    `/reports/${encodeURIComponent(ownerId)}/${encodeURIComponent(id)}`,
+    { method: 'PATCH', json: { status, adminNote: adminNote || null } },
+  ),
+};
+
 export const assistantApi = {
   ask: (question, language = 'en') => request('/assistant/ask', { method: 'POST', json: { question, language } }),
   history: () => request('/assistant/history'),
